@@ -1,0 +1,25 @@
+{
+  "name": "@apagon-rd/movil-app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "eas-build-post-install": "cd ../../ && node tools/scripts/eas-build-post-install.mjs . apps/movil-app",
+    "start": "expo start --go"
+  },
+  "dependencies": {
+    "@expo/metro-config": "*",
+    "@testing-library/react-native": "*",
+    "expo": "~53.0.23",
+    "expo-splash-screen": "*",
+    "expo-status-bar": "*",
+    "expo-system-ui": "*",
+    "jest-expo": "~53.0.10",
+    "metro-config": "*",
+    "metro-resolver": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-svg": "*",
+    "react-native-svg-transformer": "*",
+    "react-native-web": "*"
+  }
+}
