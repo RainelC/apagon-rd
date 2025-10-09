@@ -62,3 +62,4 @@ cache/
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
 package-lock.json
+pnpm-lock.yaml

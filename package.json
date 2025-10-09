@@ -61,5 +61,6 @@
     "react-native-web": "~0.20.0",
     "react-router-dom": "6.29.0",
     "ts-node": "^10.9.2"
-  }
+  },
+  "packageManager": "pnpm@10.13.1"
 }
