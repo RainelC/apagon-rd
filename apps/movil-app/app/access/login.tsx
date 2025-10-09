@@ -1,25 +1,53 @@
 import { Input } from '@components/Input'
 import { useForm } from '@hooks/useForm'
 import { Link } from 'expo-router'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
+import { router } from 'expo-router'
+import { AuthContext } from '../../src/context/AuthContext'
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Alert
 } from 'react-native'
+import { AuthService } from '@services/authService'
+
+const authService = new AuthService()
 
 export default function LoginScreen() {
   const { form, handleChange, resetForm } = useForm({
     username: '',
     password: ''
   })
-  const [isLoading] = useState(false)
+
+  const { signIn } = useContext(AuthContext)!
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleLogin = async () => {
-    resetForm()
+    try {
+      setIsLoading(true)
+
+      // Llamo a la api
+      const response = await authService.login(
+        form.username,
+        form.password
+      )
+
+      // guardo el token y el usuario en el authcontext
+      await signIn(response.token)
+
+      router.replace('/(protected)')
+    } catch (error: any) {
+      Alert.alert(
+        error.message || 'Error al iniciar sesion'
+      )
+    } finally {
+      setIsLoading(false)
+      resetForm()
+    }
   }
 
   return (
@@ -31,6 +59,7 @@ export default function LoginScreen() {
     >
       <View style={styles.content}>
         <Text style={styles.title}>Login</Text>
+
         <View style={styles.inputsContainer}>
           <Input
             value={form.username}
@@ -50,6 +79,7 @@ export default function LoginScreen() {
             props={{ secureTextEntry: true }}
           />
         </View>
+
         <TouchableOpacity
           style={[
             styles.loginButton,

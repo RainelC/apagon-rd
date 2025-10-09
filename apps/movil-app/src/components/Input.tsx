@@ -16,12 +16,16 @@ interface InputProps {
 const Input = ({
   label,
   placeholder,
-  props = {}
+  props = {},
+  value,
+  onChangeText
 }: InputProps) => {
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
+        value={value}
+        onChangeText={onChangeText}
         style={styles.input}
         placeholder={placeholder}
         placeholderTextColor='#999'

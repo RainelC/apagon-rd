@@ -7,24 +7,38 @@ import {
   StyleSheet,
   TouchableOpacity,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Alert
 } from 'react-native'
 
-type DocumentType = 'ID_CARD' | 'PASSPORT'
+import { AuthService } from '@services/authService'
+import { DocumentType } from '../../src/types/documentType'
+
+const authService = new AuthService()
 
 export default function Register() {
   const { form, handleChange, resetForm } = useForm({
-    firstName: '',
-    lastName: '',
+    firstname: '',
+    lastname: '',
     username: '',
     password: '',
     email: '',
-    documentType: '' as DocumentType,
+    documentType: 'ID_CARD' as DocumentType,
     documentNumber: ''
   })
+
   const onSubmit = async () => {
     console.log(form)
-    resetForm()
+    try {
+      const created = await authService.register(form)
+      if (created) {
+        Alert.alert('gracias papa, tas aentro')
+      }
+      resetForm()
+    } catch (error) {
+      console.log('Error creando el usuario: ', error)
+      Alert.alert('Bobop manito')
+    }
   }
   return (
     <KeyboardAvoidingView
@@ -35,7 +49,7 @@ export default function Register() {
     >
       <View style={styles.screen}>
         <View style={styles.header}>
-          <Text style={styles.title}>Registrase</Text>
+          <Text style={styles.title}>Registrate</Text>
           <Text style={styles.subtle}>
             Crea una cuenta para continuar.
           </Text>
@@ -44,9 +58,9 @@ export default function Register() {
           <View style={styles.inputGroup}>
             <View style={styles.inputGroupItem}>
               <Input
-                value={form.firstName}
+                value={form.firstname}
                 onChangeText={(text) =>
-                  handleChange('firstName', text)
+                  handleChange('firstname', text)
                 }
                 label='Nombre'
                 placeholder='Ingrese su nombre'
@@ -54,9 +68,9 @@ export default function Register() {
             </View>
             <View style={styles.inputGroupItem}>
               <Input
-                value={form.lastName}
+                value={form.lastname}
                 onChangeText={(text) =>
-                  handleChange('lastName', text)
+                  handleChange('lastname', text)
                 }
                 label='Apellido'
                 placeholder='Ingrese su apellido'
