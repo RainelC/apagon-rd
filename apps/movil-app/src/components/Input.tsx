@@ -6,6 +6,8 @@ import {
 } from 'react-native'
 
 interface InputProps {
+  value: string
+  onChangeText: (text: string) => void
   label: string
   placeholder: string
   props?: any
@@ -41,7 +43,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
-    paddingHorizontal: 14,
+    padding: 14,
+    backgroundColor: '#fff',
     fontSize: 14
   }
 })
