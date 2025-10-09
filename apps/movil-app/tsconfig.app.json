@@ -2,15 +2,23 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "types": ["node"],
-    "rootDir": "src",
+    "types": [
+      "node"
+    ],
     "jsx": "react-jsx",
     "module": "esnext",
     "moduleResolution": "bundler",
     "noUnusedLocals": false,
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "paths": {
+      "@components/*": [
+        "./src/components/*"
+      ],
+    }
   },
-  "files": ["../../node_modules/@nx/expo/typings/svg.d.ts"],
+  "files": [
+    "../../node_modules/@nx/expo/typings/svg.d.ts"
+  ],
   "exclude": [
     "out-tsc",
     "dist",
