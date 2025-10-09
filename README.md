@@ -2,19 +2,17 @@
 
 Mobile application that displays real-time electricity service availability across different communities in the Dominican Republic. It features an interactive map with crowdsourced reports of blackouts, outages, and more. The app integrates artificial intelligence to organize information by sector and power distributor, provides outage history, and sends automatic notifications.
 
-
-## Technologies 
+## Technologies
 
 **Frontend:** React, React Native
 
-**Base de Datos:** AWS, SQL   
+**Base de Datos:** AWS, SQL
 
 **Mapa:** OpenStreetMap
 
 **Backend:** Java
 
 **Frameworks and tools:** Expo, Nx
-
 
 ## Get started
 
@@ -29,16 +27,19 @@ Mobile application that displays real-time electricity service availability acro
 - Start movil app
 
 ```bash
-  npx nx run @apagon-rd/movil-app:start 
+  pnpx nx run @apagon-rd/movil-app:start
+```
+
+```bash
+  pnpm -F .\apps\movil-app\ exec expo start
 ```
 
 - Start web app
 
 ```bash
-  npx nx run @apagon-rd/web-app:dev 
+  pnpx nx run @apagon-rd/web-app:dev
 ```
 
-
-
-
-
+```bash
+  pnpm -F .\apps\web-app\ exec vite
+```
