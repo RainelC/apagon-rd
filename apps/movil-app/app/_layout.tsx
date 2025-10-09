@@ -16,7 +16,10 @@ export default function RootLayout() {
         />
         <Stack.Screen
           name='access/register'
-          options={{ title: 'Crear Cuenta', headerShown: false }}
+          options={{
+            title: 'Crear Cuenta',
+            headerShown: false
+          }}
         />
       </Stack>
     </>
