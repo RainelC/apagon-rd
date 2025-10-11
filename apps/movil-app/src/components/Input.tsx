@@ -1,7 +1,9 @@
+import { COLORS } from '@constants/colors'
 import {
   StyleSheet,
   Text,
   TextInput,
+  TextInputProps,
   View
 } from 'react-native'
 
@@ -10,7 +12,8 @@ interface InputProps {
   onChangeText: (text: string) => void
   label: string
   placeholder: string
-  props?: any
+  props?: TextInputProps
+  error?: string
 }
 
 const Input = ({
@@ -18,7 +21,8 @@ const Input = ({
   placeholder,
   props = {},
   value,
-  onChangeText
+  onChangeText,
+  error
 }: InputProps) => {
   return (
     <View style={styles.inputContainer}>
@@ -26,22 +30,26 @@ const Input = ({
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        style={styles.input}
+        style={[
+          styles.input,
+          error ? styles.inputError : null
+        ]}
         placeholder={placeholder}
         placeholderTextColor='#999'
         {...props}
       />
+      <Text style={styles.errorText}>{error}</Text>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   inputContainer: {
-    gap: 6
+    gap: 2
   },
   label: {
     fontSize: 12,
-    color: '#666'
+    color: COLORS.secondary
   },
   input: {
     borderWidth: 1,
@@ -50,6 +58,14 @@ const styles = StyleSheet.create({
     padding: 14,
     backgroundColor: '#fff',
     fontSize: 14
+  },
+  inputError: {
+    borderColor: '#ff4d4f'
+  },
+  errorText: {
+    color: '#ff4d4f',
+    fontSize: 10,
+    marginTop: 2,
   }
 })
 

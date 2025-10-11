@@ -8,10 +8,9 @@ import {
   getToken,
   saveToken,
   removeToken
-} from '../utils/authStorage'
+} from '@utils/authStorage'
 
 interface AuthContextType {
-  // user: any
   token: string | null
   signIn: (token: string) => Promise<void>
   signOut: () => Promise<void>
@@ -27,7 +26,6 @@ export const AuthProvider = ({
   children: ReactNode
 }) => {
   const [token, setToken] = useState<string | null>(null)
-  // const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -39,19 +37,14 @@ export const AuthProvider = ({
     load()
   }, [])
 
-  const signIn = async (
-    newToken: string
-    // userData?: any
-  ) => {
+  const signIn = async (newToken: string) => {
     await saveToken(newToken)
     setToken(newToken)
-    // if (userData) setUser(userData)
   }
 
   const signOut = async () => {
     await removeToken()
     setToken(null)
-    // setUser(null)
   }
 
   return (

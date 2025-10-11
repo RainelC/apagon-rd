@@ -14,14 +14,18 @@ import {
   Alert
 } from 'react-native'
 import { AuthService } from '@services/authService'
+import { COLORS } from '@constants/colors'
+import { AxiosError } from 'axios'
 
 const authService = new AuthService()
 
 export default function LoginScreen() {
-  const { form, handleChange, resetForm } = useForm({
-    username: '',
-    password: ''
-  })
+  console.log('render')
+  const { form, setField, errors, setError, clearError } =
+    useForm({
+      username: '',
+      password: ''
+    })
 
   const { signIn } = useContext(AuthContext)!
   const [isLoading, setIsLoading] = useState(false)
@@ -40,16 +44,25 @@ export default function LoginScreen() {
       await signIn(response.token)
 
       router.replace('/(protected)')
-    } catch (error: any) {
-      Alert.alert(
-        error.message || 'Error al iniciar sesion'
-      )
+    } catch (error) {
+      if (error instanceof AxiosError)
+        Alert.alert(
+          error.message || 'Error al iniciar sesion'
+        )
     } finally {
       setIsLoading(false)
-      resetForm()
+      setField('password', '')
     }
   }
 
+  const isValidForm = (): boolean => {
+    if (Object.values(form).some((value) => value === ''))
+      return false
+
+    return true
+  }
+
+  const valid = isValidForm()
   return (
     <KeyboardAvoidingView
       behavior={
@@ -57,36 +70,70 @@ export default function LoginScreen() {
       }
       style={styles.container}
     >
-      <View style={styles.content}>
-        <Text style={styles.title}>Login</Text>
-
+      <View style={styles.screen}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Inicia sesion</Text>
+          <Text style={styles.subtle}>
+            Accede a tu cuenta para continuar
+          </Text>
+        </View>
         <View style={styles.inputsContainer}>
           <Input
             value={form.username}
+            error={errors.username}
             onChangeText={(text) =>
-              handleChange('username', text)
+              setField('username', text)
             }
             label='Nombre de Usuario'
             placeholder='example@gmail.com'
+            props={{
+              keyboardType: 'email-address',
+              autoCapitalize: 'none',
+              onEndEditing: () => {
+                if (!form.username)
+                  return setError(
+                    'username',
+                    'El nombre de usuario es obligatorio'
+                  )
+                if (form.username.includes(' '))
+                  return setError(
+                    'username',
+                    'El nombre de usuario no debe contener espacios'
+                  )
+                clearError('username')
+              }
+            }}
           />
           <Input
             value={form.password}
+            error={errors.password}
             onChangeText={(text) =>
-              handleChange('password', text)
+              setField('password', text)
             }
             label='Contraseña'
             placeholder='Ingrese su contraseña'
-            props={{ secureTextEntry: true }}
+            props={{
+              secureTextEntry: true,
+              autoCapitalize: 'none',
+              onEndEditing: () => {
+                if (!form.password)
+                  return setError(
+                    'password',
+                    'La contraseña es obligatoria'
+                  )
+                clearError('password')
+              }
+            }}
           />
         </View>
 
         <TouchableOpacity
           style={[
             styles.loginButton,
-            isLoading && styles.loginButtonDisabled
+            (isLoading || !valid) && styles.loginButtonDisabled
           ]}
           onPress={handleLogin}
-          disabled={isLoading}
+          disabled={!valid || isLoading}
         >
           <Text style={styles.loginButtonText}>
             {isLoading ? 'Loading...' : 'Login'}
@@ -97,7 +144,7 @@ export default function LoginScreen() {
           <Text style={styles.signupText}>
             No tienes una cuenta?{' '}
           </Text>
-          <Link href='/access/register'>
+          <Link href='/access/register' replace>
             <Text style={styles.signupLink}>
               Registrate.
             </Text>
@@ -111,58 +158,62 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5'
+    backgroundColor: COLORS.background
   },
-  content: {
+  screen: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 80,
+    paddingTop: 60,
     gap: 18
+  },
+  header: {
+    gap: 4
   },
   title: {
     fontSize: 28,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    textAlign: 'center',
-    marginBottom: 24
+    fontWeight: '600'
+  },
+  subtle: {
+    fontSize: 14,
+    color: '#666'
   },
   inputsContainer: {
-    gap: 20
+    gap: 8
   },
-  checkMark: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#1A1A1A',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  checkMarkText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold'
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 56,
-    borderWidth: 1,
-    borderColor: '#E5E5E5'
-  },
-  passwordInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#1A1A1A'
-  },
-  eyeIcon: {
-    padding: 4
-  },
-  eyeIconText: {
-    fontSize: 18
-  },
+  // checkMark: {
+  //   width: 24,
+  //   height: 24,
+  //   borderRadius: 12,
+  //   backgroundColor: '#1A1A1A',
+  //   alignItems: 'center',
+  //   justifyContent: 'center'
+  // },
+  // checkMarkText: {
+  //   color: '#FFFFFF',
+  //   fontSize: 14,
+  //   fontWeight: 'bold'
+  // },
+  // passwordContainer: {
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   backgroundColor: '#FFFFFF',
+  //   borderRadius: 12,
+  //   paddingHorizontal: 16,
+  //   height: 56,
+  //   borderWidth: 1,
+  //   borderColor: '#E5E5E5'
+  // },
+  // passwordInput: {
+  //   flex: 1,
+  //   fontSize: 16,
+  //   color: '#1A1A1A'
+  // },
+  // eyeIcon: {
+  //   padding: 4
+  // },
+  // eyeIconText: {
+  //   fontSize: 18
+  // },
   forgotPassword: {
     alignSelf: 'flex-end',
     marginTop: 8
@@ -172,7 +223,7 @@ const styles = StyleSheet.create({
     color: '#666'
   },
   loginButton: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: COLORS.primary,
     height: 56,
     borderRadius: 12,
     alignItems: 'center',
@@ -180,7 +231,7 @@ const styles = StyleSheet.create({
     marginTop: 8
   },
   loginButtonDisabled: {
-    backgroundColor: '#666'
+    opacity: 0.5
   },
   loginButtonText: {
     color: '#FFFFFF',
@@ -189,8 +240,7 @@ const styles = StyleSheet.create({
   },
   signupContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 24
+    justifyContent: 'center'
   },
   signupText: {
     fontSize: 14,
@@ -198,7 +248,7 @@ const styles = StyleSheet.create({
   },
   signupLink: {
     fontSize: 14,
-    color: '#1A1A1A',
+    color: COLORS.primary,
     fontWeight: '600'
   }
 })

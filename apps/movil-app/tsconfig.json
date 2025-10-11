@@ -9,9 +9,24 @@
   ],
   "compilerOptions": {
     "paths": {
-      "@components/*": ["./src/components/*"],
-      "@hooks/*": ["./src/hooks/*"],
-      "@services/*": ["./src/services/*"]
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@context/*": [
+        "./src/context/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+      "@services/*": [
+        "./src/services/*"
+      ],
+      "@constants/*": [
+        "./src/constants/*"
+      ]
     }
   }
 }

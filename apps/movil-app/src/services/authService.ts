@@ -11,44 +11,39 @@ enum Endpoint {
 
 class AuthService {
   async register(user: CreateUser) {
-    const { statusText } = await axios.post(
+    const { statusText, data } = await axios.post(
       Endpoint.REGISTER,
       {
         ...user
       }
     )
 
-    if (statusText !== 'OK') {
-      throw new Error('Error al crear usuario')
-    }
+    if (statusText !== 'OK')
+      throw new Error(
+        'Error al registrar el usuario',
+        data.message
+      )
 
     return true
   }
 
   async login(username: string, password: string) {
-    try {
-      const { data, status } = await axios.post(
-        Endpoint.LOGIN,
-        {},
-        {
-          headers: {
-            Authorization:
-              'Basic ' + btoa(username + ':' + password)
-          }
+    const { data, status } = await axios.post(
+      Endpoint.LOGIN,
+      {},
+      {
+        headers: {
+          Authorization:
+            'Basic ' + btoa(username + ':' + password)
         }
-      )
-
-      if (status !== 200) {
-        throw new Error('Error al iniciar sesion')
       }
+    )
 
-      return data
-    } catch (error: any) {
-      console.error(
-        'Error en el login:',
-        error.response?.data || error.message
-      )
+    if (status !== 200) {
+      throw new Error('Error al iniciar sesion')
     }
+
+    return data
   }
 }
 
