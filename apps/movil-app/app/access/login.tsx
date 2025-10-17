@@ -125,6 +125,7 @@ export default function LoginScreen() {
               }
             }}
           />
+          <Link href={'/access/forgot-passwd'} style={styles.forgetPasswd}>¿Olvidaste tu contraseña?</Link>
         </View>
 
         <TouchableOpacity
@@ -180,48 +181,6 @@ const styles = StyleSheet.create({
   inputsContainer: {
     gap: 8
   },
-  // checkMark: {
-  //   width: 24,
-  //   height: 24,
-  //   borderRadius: 12,
-  //   backgroundColor: '#1A1A1A',
-  //   alignItems: 'center',
-  //   justifyContent: 'center'
-  // },
-  // checkMarkText: {
-  //   color: '#FFFFFF',
-  //   fontSize: 14,
-  //   fontWeight: 'bold'
-  // },
-  // passwordContainer: {
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   backgroundColor: '#FFFFFF',
-  //   borderRadius: 12,
-  //   paddingHorizontal: 16,
-  //   height: 56,
-  //   borderWidth: 1,
-  //   borderColor: '#E5E5E5'
-  // },
-  // passwordInput: {
-  //   flex: 1,
-  //   fontSize: 16,
-  //   color: '#1A1A1A'
-  // },
-  // eyeIcon: {
-  //   padding: 4
-  // },
-  // eyeIconText: {
-  //   fontSize: 18
-  // },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginTop: 8
-  },
-  forgotPasswordText: {
-    fontSize: 13,
-    color: '#666'
-  },
   loginButton: {
     backgroundColor: COLORS.primary,
     height: 56,
@@ -250,5 +209,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.primary,
     fontWeight: '600'
+  },
+  forgetPasswd: {
+    fontSize: 14,
+    color: COLORS.primary,
+    textAlign: 'right',
   }
 })
