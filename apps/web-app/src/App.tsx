@@ -1,24 +1,22 @@
-import './App.css';
-import Navbar from './components/Navbar';
-import About from './components/About';
-import FAQ from './components/FAQ';
-import Contact from './components/Contact';
-import DownloadLinks from './components/DownloadLinks';
-import Footer from './components/Footer';
+import './App.css'
+import { Construction } from './components/Contruction'
 
 const App = () => {
   return (
     <>
-      <Navbar />
+      {/* <Navbar />
       <main>
         <About />
         <DownloadLinks />
         <FAQ />
         <Contact />
       </main>
-      <Footer />
+      <Footer /> */}
+      <div className='bg-[#a2dafb]'>
+        <Construction />;
+      </div>
     </>
-  );
-};
+  )
+}
 
-export default App;
+export default App

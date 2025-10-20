@@ -2,8 +2,11 @@
   "name": "@apagon-rd/web-app",
   "version": "0.0.1",
   "private": true,
-    "type": "module",
+  "type": "module",
   "scripts": {
-    "dev": "vite"
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "npm run build && vite preview",
+    "deploy": "npm run build && wrangler deploy"
   }
 }
