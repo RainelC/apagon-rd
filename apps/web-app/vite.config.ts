@@ -2,7 +2,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { cloudflare } from "@cloudflare/vite-plugin";
+import { cloudflare } from '@cloudflare/vite-plugin'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig(() => ({
   root: __dirname,
@@ -16,11 +17,13 @@ export default defineConfig(() => ({
     host: 'localhost'
   },
 
-  plugins: [tailwindcss(), react(), cloudflare()],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
+  plugins: [
+    tailwindcss(),
+    react(),
+    cloudflare(),
+    tsconfigPaths()
+  ],
+
   build: {
     outDir: './dist',
     emptyOutDir: true,

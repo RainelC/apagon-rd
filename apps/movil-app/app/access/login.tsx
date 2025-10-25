@@ -17,6 +17,8 @@ import { AuthService } from '@services/authService'
 import { COLORS } from '@constants/colors'
 import { AxiosError } from 'axios'
 
+import * as Linking from 'expo-linking'
+
 const authService = new AuthService()
 
 export default function LoginScreen() {
@@ -63,6 +65,20 @@ export default function LoginScreen() {
   }
 
   const valid = isValidForm()
+
+  async function getInitialDeepLink() {
+    const url = await Linking.getLinkingURL()
+    if (url) {
+      console.log('App launched with URL:', url)
+      // Handle the deep link URL here
+    } else {
+      console.log('App not launched by a deep link.')
+    }
+  }
+
+  // Call the function
+  getInitialDeepLink()
+
   return (
     <KeyboardAvoidingView
       behavior={
@@ -125,13 +141,19 @@ export default function LoginScreen() {
               }
             }}
           />
-          <Link href={'/access/forgot-passwd'} style={styles.forgetPasswd}>¿Olvidaste tu contraseña?</Link>
+          <Link
+            href={'/access/forgot-passwd'}
+            style={styles.forgetPasswd}
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
         </View>
 
         <TouchableOpacity
           style={[
             styles.loginButton,
-            (isLoading || !valid) && styles.loginButtonDisabled
+            (isLoading || !valid) &&
+              styles.loginButtonDisabled
           ]}
           onPress={handleLogin}
           disabled={!valid || isLoading}
@@ -145,7 +167,10 @@ export default function LoginScreen() {
           <Text style={styles.signupText}>
             No tienes una cuenta?{' '}
           </Text>
-          <Link href='/access/register' replace>
+          <Link
+            href='/access/register'
+            replace
+          >
             <Text style={styles.signupLink}>
               Registrate.
             </Text>
@@ -213,6 +238,6 @@ const styles = StyleSheet.create({
   forgetPasswd: {
     fontSize: 14,
     color: COLORS.primary,
-    textAlign: 'right',
+    textAlign: 'right'
   }
 })
