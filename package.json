@@ -2,7 +2,9 @@
   "name": "@apagon-rd/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev:app": "pnpm -F ./apps/movil-app start"
+  },
   "private": true,
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.13.13",
