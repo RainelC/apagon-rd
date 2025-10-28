@@ -10,7 +10,6 @@ import {
   Platform,
   Alert,
   Image,
-  Touchable,
   Pressable
 } from 'react-native'
 import { AuthService } from '@services/authService'
@@ -23,22 +22,16 @@ const authService = new AuthService()
 export default function LoginScreen() {
   const { form, setField, errors, setError, clearError } =
     useForm({
-      username: '',
-      email: ''
+      username: ''
     })
 
   const [isLoading, setIsLoading] = useState(false)
-  const [way, setWay] = useState<'username' | 'email'>(
-    'email'
-  )
 
   const handleForgotPasswd = async () => {
-    const usernameWay: boolean = way !== 'email'
     setIsLoading(true)
-    console.log(usernameWay)
 
     const response = await authService.sendRecoverPasswd(
-      usernameWay ? form.username : form.email
+      form.username
     )
 
     if (response.status === 200)
@@ -51,16 +44,9 @@ export default function LoginScreen() {
       if (response.status === 404) {
         Alert.alert(
           'Usuario no encontrado',
-          `Verifique el ${
-            usernameWay ? 'nombre de usuario' : 'correo'
-          } y vuelva a intentar`
+          `Verifique el nombre de usuario y vuelva a intentar`
         )
-        usernameWay
-          ? setError('username', 'Usuario no encontrado')
-          : setError(
-              'email',
-              'Correo electrónico no encontrado'
-            )
+        setError('username', 'Usuario no encontrado')
       } else {
         Alert.alert(
           response.message || 'Error al enviar correo'
@@ -71,12 +57,8 @@ export default function LoginScreen() {
   }
 
   const isValidForm = (): boolean => {
-    if (way === 'username')
-      if (form.username === '' || errors.username)
-        return false 
-    if (way === 'email')
-      if (form.email === '' || errors.email) 
-        return false
+    if (form.username === '' || errors.username)
+      return false
 
     return true
   }
@@ -102,59 +84,39 @@ export default function LoginScreen() {
             source={require('./../../assets/images/placeholder-recover.png')}
           />
           <Text style={styles.infoText}>
-            {way === 'username'
-              ? 'Por favor, introduce tu nombre de usuario para recibir al correo electrónico un enlace de verificación'
-              : 'Por favor, introduce tu correo electrónico para recibir un enlace de verificación'}
+            Por favor, introduce tu nombre de usuario para
+            recibir al correo electrónico un enlace de
+            verificación
           </Text>
         </View>
         <View>
           <Input
             value={form.username}
             error={errors.username}
-            onChangeText={(text) => setField(way, text)}
-            label={
-              way !== 'email'
-                ? 'Nombre de Usuario'
-                : 'Correo electrónico'
+            onChangeText={(text) =>
+              setField('username', text)
             }
-            placeholder={
-              way !== 'email'
-                ? 'Furgencio'
-                : 'furgencio@example.com'
-            }
+            label={'Nombre de Usuario'}
+            placeholder={'Furgencio'}
             props={{
               autoCapitalize: 'none',
               onEndEditing: () => {
                 if (!form.username)
                   return setError(
-                    way,
-                    `El ${
-                      way !== 'email'
-                        ? 'nombre de Usuario'
-                        : 'correo electrónico'
-                    } es obligatorio`
+                    'username',
+                    'El nombre de Usuario es obligatorio'
                   )
                 if (form.username.includes(' '))
                   return setError(
-                    way,
-                    `El ${
-                      way !== 'email'
-                        ? 'nombre de Usuario'
-                        : 'correo electrónico'
-                    } no debe contener espacios`
+                    'username',
+                    'El nombre de Usuario no debe contener espacios'
                   )
-                clearError(way)
+                clearError('username')
               }
             }}
           />
         </View>
-        <Pressable
-          onPress={() => {
-            setError(way, '')
-            setField(way, '')
-            setWay(way === 'email' ? 'username' : 'email')
-          }}
-        >
+        <Pressable>
           <Text style={styles.anotherWayText}>
             Usar otro método
           </Text>

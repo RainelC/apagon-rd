@@ -41,7 +41,7 @@ export default function LoginScreen() {
         form.username,
         form.password
       )
-
+      console.log(response  )
       // guardo el token y el usuario en el authcontext
       await signIn(response.token)
 
@@ -51,6 +51,7 @@ export default function LoginScreen() {
         Alert.alert(
           error.message || 'Error al iniciar sesion'
         )
+        console.log(error)
     } finally {
       setIsLoading(false)
       setField('password', '')

@@ -1,10 +1,10 @@
-function Error400() {
+function NotFound() {
   return (
     <div
       id='container'
       className=' h-screen flex p-10 text-center'
     >
-      <div className="m-auto">
+      <div className='m-auto'>
         <h2 className='scroll-m-20  pb-2 text-3xl font-bold tracking-tight first:mt-0 '>
           Los siento, está página no está disponible
         </h2>
@@ -23,4 +23,4 @@ function Error400() {
   )
 }
 
-export { Error400 }
+export { NotFound }

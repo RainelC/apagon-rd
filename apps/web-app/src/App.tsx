@@ -1,9 +1,9 @@
 import { Route, Routes } from 'react-router-dom'
 import './styles/globals.css'
-import { Construction } from './components/Contruction'
-import NotFoundPage from './components/NotFoundPage'
-import Recover from './auth/recover/Recover'
-import SendRecover from './auth/recover/SendRecover'
+import { Construction } from './pages/construction/Contruction'
+import Recover from './pages/auth/recover/Recover'
+import SendRecover from './pages/auth/recover/SendRecover'
+import { NotFound } from './pages/error/NotFound'
 
 const App = () => {
   return (
@@ -21,13 +21,13 @@ const App = () => {
           path='/auth/recover'
           element={<Recover />}
         />
-         <Route
+        <Route
           path='/auth/recover/send'
           element={<SendRecover />}
         />
         <Route
           path='*'
-          element={<NotFoundPage />}
+          element={<NotFound />}
         />
       </Routes>
     </div>
