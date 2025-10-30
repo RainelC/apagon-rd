@@ -1,23 +1,23 @@
 import './App.css';
 import Navbar from './components/Navbar';
+import Hero from './components/Hero';
 import About from './components/About';
 import FAQ from './components/FAQ';
-import Contact from './components/Contact';
 import DownloadLinks from './components/DownloadLinks';
+import Contact from './components/Contact';
 import Footer from './components/Footer';
 
 const App = () => {
   return (
-    <>
+    <div className="app">
       <Navbar />
-      <main>
-        <About />
-        <DownloadLinks />
-        <FAQ />
-        <Contact />
-      </main>
+      <Hero />
+      <About />
+      <FAQ />
+      <DownloadLinks />
+      <Contact />
       <Footer />
-    </>
+    </div>
   );
 };
 

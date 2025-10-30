@@ -1,6 +1,16 @@
 const Navbar = () => {
   return (
-    <h1>Navbar</h1>
+    <nav className="navbar">
+      <div className="navbar-container">
+        <div className="navbar-logo">ApagonRD</div>
+        <ul className="navbar-menu">
+          <li><a href="#about" className="navbar-link">Acerca de</a></li>
+          <li><a href="#faq" className="navbar-link">FAQ</a></li>
+          <li><a href="#download" className="navbar-link">Descargar</a></li>
+          <li><a href="#contact" className="navbar-link">Contactanos</a></li>
+        </ul>
+      </div>
+    </nav>
   );
 };
 
