@@ -34,8 +34,6 @@ const Recover = () => {
   })
 
   useEffect(() => {
-    const CINCO_MINUTES_MS: number = 5 * 60 * 1000
-
     const fetchData = async () => {
       const isValidated =
         await AuthService.validateRecoverToken(token || '')
@@ -46,15 +44,8 @@ const Recover = () => {
 
     if (!token) {
       setStatus({ error: true, code: Status.BAD_REQUEST })
-      return
     }
-
     fetchData()
-    const intervalId = setInterval(
-      fetchData,
-      CINCO_MINUTES_MS
-    )
-    return () => clearInterval(intervalId)
   }, [token])
 
   return status.error ? (
@@ -110,13 +101,24 @@ const Recover = () => {
         values,
         { setSubmitting, resetForm }
       ) => {
-        const status = await AuthService.recoverPasswd(
-          values
-        )
-        if (status === 200) {
-          setSubmitting(false)
-          resetForm()
-          setStatus({ error: false, code: 200 })
+        try {
+          const status = await AuthService.recoverPasswd(
+            values
+          )
+          if (status === 200) {
+            setSubmitting(false)
+            resetForm()
+            setStatus({ error: false, code: 200 })
+          }
+        } catch (error: any) {
+          if (error.status === 403) {
+            setSubmitting(false)
+            resetForm()
+            setStatus({
+              error: true,
+              code: Status.FORBIDDEN
+            })
+          }
         }
       }}
     >
