@@ -1,29 +1,35 @@
 /// <reference types='vitest' />
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import { cloudflare } from '@cloudflare/vite-plugin'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/apps/web-app',
   server: {
     port: 4200,
-    host: 'localhost',
+    host: 'localhost'
   },
   preview: {
     port: 4200,
-    host: 'localhost',
+    host: 'localhost'
   },
-  plugins: [react()],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
+
+  plugins: [
+    tailwindcss(),
+    react(),
+    cloudflare(),
+    tsconfigPaths()
+  ],
+
   build: {
     outDir: './dist',
     emptyOutDir: true,
     reportCompressedSize: true,
     commonjsOptions: {
-      transformMixedEsModules: true,
-    },
-  },
-}));
+      transformMixedEsModules: true
+    }
+  }
+}))

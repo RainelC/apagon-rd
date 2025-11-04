@@ -1,3 +1,4 @@
+import { AxiosError, AxiosResponse } from 'axios'
 import axios from '../api/apiClient'
 import type { CreateUser } from '../types/createUser'
 
@@ -44,6 +45,21 @@ class AuthService {
     }
 
     return data
+  }
+
+  async sendRecoverPasswd(
+    username: string
+  ): Promise<AxiosResponse | AxiosError> {
+    try {
+      return await axios.post(
+        Endpoint.SEND_RECUPERATION_EMAIL,
+        {
+          username: username
+        }
+      )
+    } catch (error: unknown) {
+      return error as AxiosError 
+    }
   }
 }
 

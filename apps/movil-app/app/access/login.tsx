@@ -17,10 +17,11 @@ import { AuthService } from '@services/authService'
 import { COLORS } from '@constants/colors'
 import { AxiosError } from 'axios'
 
+import * as Linking from 'expo-linking'
+
 const authService = new AuthService()
 
 export default function LoginScreen() {
-  console.log('render')
   const { form, setField, errors, setError, clearError } =
     useForm({
       username: '',
@@ -63,6 +64,20 @@ export default function LoginScreen() {
   }
 
   const valid = isValidForm()
+
+  async function getInitialDeepLink() {
+    const url = await Linking.getLinkingURL()
+    if (url) {
+      console.log('App launched with URL:', url)
+      // Handle the deep link URL here
+    } else {
+      console.log('App not launched by a deep link.')
+    }
+  }
+
+  // Call the function
+  getInitialDeepLink()
+
   return (
     <KeyboardAvoidingView
       behavior={
@@ -125,12 +140,19 @@ export default function LoginScreen() {
               }
             }}
           />
+          <Link
+            href={'/access/forgot-passwd'}
+            style={styles.forgetPasswd}
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
         </View>
 
         <TouchableOpacity
           style={[
             styles.loginButton,
-            (isLoading || !valid) && styles.loginButtonDisabled
+            (isLoading || !valid) &&
+              styles.loginButtonDisabled
           ]}
           onPress={handleLogin}
           disabled={!valid || isLoading}
@@ -144,7 +166,10 @@ export default function LoginScreen() {
           <Text style={styles.signupText}>
             No tienes una cuenta?{' '}
           </Text>
-          <Link href='/access/register' replace>
+          <Link
+            href='/access/register'
+            replace
+          >
             <Text style={styles.signupLink}>
               Registrate.
             </Text>
@@ -180,48 +205,6 @@ const styles = StyleSheet.create({
   inputsContainer: {
     gap: 8
   },
-  // checkMark: {
-  //   width: 24,
-  //   height: 24,
-  //   borderRadius: 12,
-  //   backgroundColor: '#1A1A1A',
-  //   alignItems: 'center',
-  //   justifyContent: 'center'
-  // },
-  // checkMarkText: {
-  //   color: '#FFFFFF',
-  //   fontSize: 14,
-  //   fontWeight: 'bold'
-  // },
-  // passwordContainer: {
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   backgroundColor: '#FFFFFF',
-  //   borderRadius: 12,
-  //   paddingHorizontal: 16,
-  //   height: 56,
-  //   borderWidth: 1,
-  //   borderColor: '#E5E5E5'
-  // },
-  // passwordInput: {
-  //   flex: 1,
-  //   fontSize: 16,
-  //   color: '#1A1A1A'
-  // },
-  // eyeIcon: {
-  //   padding: 4
-  // },
-  // eyeIconText: {
-  //   fontSize: 18
-  // },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginTop: 8
-  },
-  forgotPasswordText: {
-    fontSize: 13,
-    color: '#666'
-  },
   loginButton: {
     backgroundColor: COLORS.primary,
     height: 56,
@@ -250,5 +233,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.primary,
     fontWeight: '600'
+  },
+  forgetPasswd: {
+    fontSize: 14,
+    color: COLORS.primary,
+    textAlign: 'right'
   }
 })
