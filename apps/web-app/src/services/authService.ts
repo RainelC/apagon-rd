@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const axiosInstance = axios.create({
-  baseURL: 'http://52.15.179.101:8020/api/v1',
+  baseURL: 'https://api.apagon-rd.resqpet.online/api/v1/',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -19,21 +19,31 @@ interface sendEmailProps {
 
 const AuthService = {
   async recoverPasswd(
-    data: recoverPasswdProps
-  ): Promise<void> {
-    const response = await axiosInstance.post(
+    datas: recoverPasswdProps
+  ): Promise<number> {
+    const { status } = await axiosInstance.post(
       '/account/recover',
-      data
+      datas
     )
-    console.log('response: ', response)
+    return status
   },
 
-  async sendRecoverEmail(data: sendEmailProps): Promise<void> {
-    const response = await axiosInstance.post(
-      '/account/recover/send',
-      { username: data }
+  async validateRecoverToken(token: string) {
+    const { data } = await axiosInstance.post(
+      '/account/recover/validate?token=' + token,
+      {}
     )
-    console.log('response: ', response)
+    return data.result
+  },
+
+  async sendRecoverEmail(
+    props: sendEmailProps
+  ): Promise<number> {
+    const { status } = await axiosInstance.post(
+      '/account/recover/send',
+      props
+    )
+    return status
   }
 }
 

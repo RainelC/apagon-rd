@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
-import AuthService from '../../services/authService'
+import AuthService from '../../../services/authService'
 import { ErrorMessage, Formik } from 'formik'
 import { Input } from './components/input'
 import * as Yup from 'yup'
@@ -12,47 +12,60 @@ import {
 } from './components/card'
 import { Button } from './components/button'
 import { useState, useEffect } from 'react'
-import { Error400 } from '../../pages/error/error400'
+import { NotFound } from '../../error/NotFound'
 import { Error403 } from './components/error403'
+import { Spinner } from './components/spinner'
+import { Successful } from './components/successful'
+
+enum Status {
+  LOADING = 100,
+  LOADED = 150,
+  SUCCESSFUL = 200,
+  BAD_REQUEST = 400,
+  FORBIDDEN = 403
+}
 
 const Recover = () => {
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
-  const [error, setError] = useState({
+  const [status, setStatus] = useState({
     error: false,
-    status: 200
+    code: Status.LOADING
   })
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const result = await AuthService.recoverPasswd({
-          password: 'test',
-          repeated: 'test',
-          token: token ? token : ''
-        })
-        console.log('result', result)
-      } catch (err: any) {
-        // if (error.status === 400)
-        setError({ error: true, status: err.status })
-        console.log('error: ', error.status)
-      }
+      const isValidated =
+        await AuthService.validateRecoverToken(token || '')
+      if (!isValidated)
+        setStatus({ error: true, code: Status.FORBIDDEN })
+      else setStatus({ error: false, code: Status.LOADED })
+    }
+
+    if (!token) {
+      setStatus({ error: true, code: Status.BAD_REQUEST })
     }
     fetchData()
   }, [token])
 
-  return error.error ? (
-    error.status === 400 ? (
-      <Error400 />
+  return status.error ? (
+    status.code === Status.BAD_REQUEST ? (
+      <NotFound />
     ) : (
       <Error403 />
     )
+  ) : status.code === Status.LOADING ? (
+    <div className='flex items-center  justify-center gap-4 h-screen'>
+      <Spinner className='size-8' />
+    </div>
+  ) : status.code === Status.SUCCESSFUL ? (
+    <Successful />
   ) : (
     <Formik
       initialValues={{
         password: '',
         repeated: '',
-        token: token
+        token: token || ''
       }}
       validationSchema={Yup.object().shape({
         password: Yup.string()
@@ -84,15 +97,37 @@ const Recover = () => {
           )
           .required('Debes confirmar la contreseña')
       })}
-      onSubmit={(values, { setSubmitting }) => {
-        AuthService.recoverPasswd(values)
+      onSubmit={async (
+        values,
+        { setSubmitting, resetForm }
+      ) => {
+        try {
+          const status = await AuthService.recoverPasswd(
+            values
+          )
+          if (status === 200) {
+            setSubmitting(false)
+            resetForm()
+            setStatus({ error: false, code: 200 })
+          }
+        } catch (error: any) {
+          if (error.status === 403) {
+            setSubmitting(false)
+            resetForm()
+            setStatus({
+              error: true,
+              code: Status.FORBIDDEN
+            })
+          }
+        }
       }}
     >
       {({
         values,
-        errors,
         handleChange,
         handleBlur,
+        handleReset,
+        handleSubmit,
         isSubmitting
       }) => (
         <div
@@ -110,7 +145,11 @@ const Recover = () => {
               </h3>
             </CardHeader>
             <CardContent>
-              <form className='text-center'>
+              <form
+                onSubmit={handleSubmit}
+                onReset={handleReset}
+                className='text-center'
+              >
                 <div className='my-5'>
                   <Label className='my-2'>
                     Nueva contraseña
