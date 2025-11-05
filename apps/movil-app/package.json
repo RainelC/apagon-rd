@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@expo/metro-config": "*",
+    "@react-native-community/geolocation": "^3.4.0",
     "@testing-library/react-native": "*",
     "expo": "~53.0.23",
     "expo-constants": "~17.1.7",
@@ -30,6 +31,7 @@
     "react-native-screens": "~4.11.1",
     "react-native-svg": "*",
     "react-native-svg-transformer": "*",
-    "react-native-web": "*"
+    "react-native-web": "*",
+    "react-native-webview": "^13.16.0"
   }
 }

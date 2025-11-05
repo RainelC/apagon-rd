@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const axiosInstance = axios.create({
-  baseURL: 'http://52.15.179.101:8020/api/v1',
+  baseURL: 'https://api.apagon-rd.resqpet.online/api/v1',
   headers: {
     'Content-Type': 'application/json'
   }
