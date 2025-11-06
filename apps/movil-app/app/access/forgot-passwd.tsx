@@ -34,11 +34,13 @@ export default function LoginScreen() {
       form.username
     )
 
-    if (response.status === 200)
+    if (response.status === 200) {
       Alert.alert(
         'Enlace enviado',
         '¡Te hemos enviado un correo de recuperación! Si no lo encuentras, revisa tu bandeja de spam, a veces se enconden ahí ;) '
       )
+      form.username = ''
+    }
 
     if (response instanceof AxiosError) {
       if (response.status === 404) {

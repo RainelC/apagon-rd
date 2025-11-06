@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import './styles/globals.css'
 import './styles/App.css'
-import Recover from './pages/auth/recover/Recover'
+import OpenRecover from './pages/auth/recover/OpenRecover'
 import SendRecover from './pages/auth/recover/SendRecover'
 import { NotFound } from './pages/error/NotFound'
 import About from './components/About'
@@ -32,7 +32,7 @@ const App = () => {
         />
         <Route
           path='/auth/recover'
-          element={<Recover />}
+          element={<OpenRecover />}
         />
         <Route
           path='/auth/recover/send'
