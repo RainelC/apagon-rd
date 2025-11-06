@@ -1,9 +1,16 @@
 import { Route, Routes } from 'react-router-dom'
 import './styles/globals.css'
-import { Construction } from './pages/construction/Contruction'
+import './styles/App.css'
 import Recover from './pages/auth/recover/Recover'
 import SendRecover from './pages/auth/recover/SendRecover'
 import { NotFound } from './pages/error/NotFound'
+import About from './components/About'
+import DownloadLinks from './components/DownloadLinks'
+import FAQ from './components/FAQ'
+import Footer from './components/Footer'
+import Hero from './components/Hero'
+import Navbar from './components/Navbar'
+import Contact from './components/Contact'
 
 const App = () => {
   return (
@@ -12,8 +19,14 @@ const App = () => {
         <Route
           path='/'
           element={
-            <div className='bg-[#a2dafb]'>
-              <Construction />
+            <div className='app'>
+              <Navbar />
+              <Hero />
+              <About />
+              <FAQ />
+              <DownloadLinks />
+              <Contact />
+              <Footer />
             </div>
           }
         />
