@@ -9,20 +9,21 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-  Image,
+  Image
 } from 'react-native'
 import { AuthService } from '@services/authService'
 import { COLORS } from '@constants/colors'
 import { GoBackButton } from '@components/GoBackButton'
-import { AxiosError } from 'axios'
-import { Link } from 'expo-router'
 
 const authService = new AuthService()
 
-export default function LoginScreen() {
+function RecoverScreen() {
+  const token = ''
   const { form, setField, errors, setError, clearError } =
     useForm({
-      username: ''
+      password: '',
+      repeated: '',
+      token: token || ''
     })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -30,38 +31,77 @@ export default function LoginScreen() {
   const handleForgotPasswd = async () => {
     setIsLoading(true)
 
-    const response = await authService.sendRecoverPasswd(
-      form.username
-    )
+    const response = await authService.recoverPasswd(form)
 
-    if (response.status === 200) {
+    if (response === 200) {
       Alert.alert(
-        'Enlace enviado',
-        '¡Te hemos enviado un correo de recuperación! Si no lo encuentras, revisa tu bandeja de spam, a veces se enconden ahí ;) '
+        '¡Contraseña cambiada correctamente!',
+        'Ya puedes iniciar sesión con tu nueva contraseña.'
       )
-      form.username = ''
     }
 
-    if (response instanceof AxiosError) {
-      if (response.status === 404) {
-        Alert.alert(
-          'Usuario no encontrado',
-          `Verifique el nombre de usuario y vuelva a intentar`
-        )
-        setError('username', 'Usuario no encontrado')
-      } else {
-        Alert.alert(
-          response.message || 'Error al enviar correo'
-        )
-      }
+    if (response === 403) {
+      Alert.alert(
+        'Enlace de recuperación invalido',
+        'El enlace para restablecer la contraseña no es válido o ha caducado, posiblemente porque ya se había utilizado.'
+      )
     }
     setIsLoading(false)
   }
 
   const isValidForm = (): boolean => {
-    if (form.username === '' || errors.username)
+    if (!/[A-Z]/.test(form.password)) {
+      setError(
+        'password',
+        'La contraseña debe contener al menos una mayúscula'
+      )
+      return false
+    }
+    if (!/[a-z]/.test(form.password)) {
+      setError(
+        'password',
+        'La contraseña debe contener al menos una minúscula'
+      )
+      return false
+    }
+    if (!/[0-9]/.test(form.password)) {
+      setError(
+        'password',
+        'La contraseña debe contener al menos un numero'
+      )
+      return false
+    }
+    if (!/\W/.test(form.password)) {
+      setError(
+        'password',
+        'La contraseña debe contener al menos un carácter especial'
+      )
+      return false
+    }
+
+    if (form.password.length < 8) {
+      setError(
+        'password',
+        'La contraseña debe contener al menos 8 caracteres'
+      )
+      return false
+    }
+
+    if (form.password === '' || errors.password)
       return false
 
+    if (form.repeated === '' || errors.repeated)
+      return false
+
+    if (form.password !== form.repeated) {
+      setError(
+        'repeated',
+        'Las contraseñas deben coincidir'
+      )
+      return false
+    }
+
+    setError('password', '')
     return true
   }
 
@@ -77,7 +117,7 @@ export default function LoginScreen() {
         <View style={styles.header}>
           <GoBackButton />
           <Text style={styles.title}>
-            Olvidé mi contraseña
+            Crear nueva contraseña
           </Text>
         </View>
         <View style={styles.info}>
@@ -86,43 +126,64 @@ export default function LoginScreen() {
             source={require('./../../assets/images/placeholder-recover.png')}
           />
           <Text style={styles.infoText}>
-            Por favor, introduce tu nombre de usuario para
-            recibir al correo electrónico un enlace de
-            verificación
+            Tu nueva contraseña debería ser diferente a tu
+            contraseña anterior.
           </Text>
         </View>
         <View>
           <Input
-            value={form.username}
-            error={errors.username}
+            value={form.password}
+            error={errors.password}
             onChangeText={(text) =>
-              setField('username', text)
+              setField('password', text)
             }
-            label={'Nombre de Usuario'}
-            placeholder={'Furgencio'}
+            label={'Contraseña'}
+            placeholder={'*********'}
             props={{
+              secureTextEntry: true,
               autoCapitalize: 'none',
-              onEndEditing: () => {
-                if (!form.username)
+              onChange: () => {
+                if (!form.password)
                   return setError(
-                    'username',
-                    'El nombre de Usuario es obligatorio'
+                    'password',
+                    'La contraseña es obligatoria'
                   )
-                if (form.username.includes(' '))
+                if (form.password.includes(' '))
                   return setError(
-                    'username',
+                    'password',
                     'El nombre de Usuario no debe contener espacios'
                   )
-                clearError('username')
+                clearError('password')
+              }
+            }}
+          />
+          <Input
+            value={form.repeated}
+            error={errors.repeated}
+            onChangeText={(text) =>
+              setField('repeated', text)
+            }
+            label={'Confirmar contraseña'}
+            placeholder={'*********'}
+            props={{
+              secureTextEntry: true,
+              autoCapitalize: 'none',
+              onEndEditing: () => {
+                if (!form.password)
+                  return setError(
+                    'repeated',
+                    'La contraseña es obligatoria'
+                  )
+                if (form.repeated.includes(' '))
+                  return setError(
+                    'repeated',
+                    'El nombre de Usuario no debe contener espacios'
+                  )
+                clearError('repeated')
               }
             }}
           />
         </View>
-        <Link href={'/auth/recover'}>
-          <Text style={styles.anotherWayText}>
-            Usar otro método
-          </Text>
-        </Link>
         <TouchableOpacity
           style={[
             styles.button,
@@ -199,3 +260,5 @@ const styles = StyleSheet.create({
     fontWeight: '600'
   }
 })
+
+export default RecoverScreen

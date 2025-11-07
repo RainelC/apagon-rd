@@ -24,7 +24,7 @@ const OpenRecover: React.FC = () => {
         : ''
 
     // If is desktop (no Android or iOS), show the web directly
-    if (!/Android|iPhone|iPad|iPod/i.test(ua)) {
+    if (!/Android|iPhone|iPad|iPod/i.test(ua) || location.search === '') {
       setShowFallback(true)
       return
     }

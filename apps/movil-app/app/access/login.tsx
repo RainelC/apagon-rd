@@ -17,8 +17,6 @@ import { AuthService } from '@services/authService'
 import { COLORS } from '@constants/colors'
 import { AxiosError } from 'axios'
 
-import * as Linking from 'expo-linking'
-
 const authService = new AuthService()
 
 export default function LoginScreen() {
@@ -66,19 +64,6 @@ export default function LoginScreen() {
   }
 
   const valid = isValidForm()
-
-  async function getInitialDeepLink() {
-    const url = await Linking.getLinkingURL()
-    if (url) {
-      console.log('App launched with URL:', url)
-      // Handle the deep link URL here
-    } else {
-      console.log('App not launched by a deep link.')
-    }
-  }
-
-  // Call the function
-  getInitialDeepLink()
 
   return (
     <KeyboardAvoidingView
