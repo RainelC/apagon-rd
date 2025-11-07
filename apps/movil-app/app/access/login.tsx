@@ -22,7 +22,6 @@ import * as Linking from 'expo-linking'
 const authService = new AuthService()
 
 export default function LoginScreen() {
-  console.log('render')
   const { form, setField, errors, setError, clearError } =
     useForm({
       username: '',
