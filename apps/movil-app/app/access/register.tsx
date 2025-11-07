@@ -131,16 +131,14 @@ export default function Register() {
                   }
                   label='Nombre'
                   placeholder='Ingrese su nombre'
-                  props={{
-                    onEndEditing: () => {
-                      if (!form.firstname)
-                        return setError(
-                          'firstname',
-                          'El nombre es obligatorio'
-                        )
+                  onEndEditing={() => {
+                    if (!form.firstname)
+                      return setError(
+                        'firstname',
+                        'El nombre es obligatorio'
+                      )
 
-                      clearError('firstname')
-                    }
+                    clearError('firstname')
                   }}
                 />
               </View>
@@ -153,15 +151,13 @@ export default function Register() {
                   }
                   label='Apellido'
                   placeholder='Ingrese su apellido'
-                  props={{
-                    onEndEditing: () => {
-                      if (!form.lastname)
-                        return setError(
-                          'lastname',
-                          'El apellido es obligatorio'
-                        )
-                      clearError('lastname')
-                    }
+                  onEndEditing={() => {
+                    if (!form.lastname)
+                      return setError(
+                        'lastname',
+                        'El apellido es obligatorio'
+                      )
+                    clearError('lastname')
                   }}
                 />
               </View>
@@ -174,21 +170,19 @@ export default function Register() {
               }
               label='Nombre de Usuario'
               placeholder='Ingrese su nombre de usuario'
-              props={{
-                autoCapitalize: 'none',
-                onEndEditing: () => {
-                  if (!form.username)
-                    return setError(
-                      'username',
-                      'El nombre de usuario es obligatorio'
-                    )
-                  if (form.username.includes(' '))
-                    return setError(
-                      'username',
-                      'El nombre de usuario no debe contener espacios'
-                    )
-                  clearError('username')
-                }
+              autoCapitalize='none'
+              onEndEditing={() => {
+                if (!form.username)
+                  return setError(
+                    'username',
+                    'El nombre de usuario es obligatorio'
+                  )
+                if (form.username.includes(' '))
+                  return setError(
+                    'username',
+                    'El nombre de usuario no debe contener espacios'
+                  )
+                clearError('username')
               }}
             />
             <Input
@@ -199,24 +193,22 @@ export default function Register() {
               }
               label='Correo Electrónico'
               placeholder='Ingrese su correo electrónico'
-              props={{
-                keyboardType: 'email-address',
-                autoCapitalize: 'none',
-                onEndEditing: () => {
-                  if (!form.email)
-                    return setError(
-                      'email',
-                      'El correo electrónico es obligatorio'
-                    )
-                  const emailRegex =
-                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-                  if (!emailRegex.test(form.email))
-                    return setError(
-                      'email',
-                      'El correo electrónico no es válido'
-                    )
-                  clearError('email')
-                }
+              keyboardType='email-address'
+              autoCapitalize='none'
+              onEndEditing={() => {
+                if (!form.email)
+                  return setError(
+                    'email',
+                    'El correo electrónico es obligatorio'
+                  )
+                const emailRegex =
+                  /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                if (!emailRegex.test(form.email))
+                  return setError(
+                    'email',
+                    'El correo electrónico no es válido'
+                  )
+                clearError('email')
               }}
             />
             <Input
@@ -227,31 +219,29 @@ export default function Register() {
               }
               label='Contraseña'
               placeholder='Ingrese su contraseña'
-              props={{
-                secureTextEntry: true,
-                onEndEditing: () => {
-                  if (form.password.length < 8)
-                    return setError(
-                      'password',
-                      'La contraseña debe tener al menos 8 caracteres'
-                    )
-                  if (!/[A-Z]/.test(form.password))
-                    return setError(
-                      'password',
-                      'La contraseña debe tener al menos una letra mayúscula'
-                    )
-                  if (!/[0-9]/.test(form.password))
-                    return setError(
-                      'password',
-                      'La contraseña debe tener al menos un número'
-                    )
-                  if (!/[^A-Za-z0-9]/.test(form.password))
-                    return setError(
-                      'password',
-                      'La contraseña debe tener al menos un caracter especial'
-                    )
-                  clearError('password')
-                }
+              secureTextEntry={true}
+              onEndEditing={() => {
+                if (form.password.length < 8)
+                  return setError(
+                    'password',
+                    'La contraseña debe tener al menos 8 caracteres'
+                  )
+                if (!/[A-Z]/.test(form.password))
+                  return setError(
+                    'password',
+                    'La contraseña debe tener al menos una letra mayúscula'
+                  )
+                if (!/[0-9]/.test(form.password))
+                  return setError(
+                    'password',
+                    'La contraseña debe tener al menos un número'
+                  )
+                if (!/[^A-Za-z0-9]/.test(form.password))
+                  return setError(
+                    'password',
+                    'La contraseña debe tener al menos un caracter especial'
+                  )
+                clearError('password')
               }}
             />
             <DocumentTypeInput
@@ -266,37 +256,36 @@ export default function Register() {
               }
               label='Número de Documento'
               placeholder='Ingrese su número de cédula'
-              props={{
-                keyboardType: 'number-pad',
-                maxLength:
-                  form.documentType === 'ID_CARD' ? 13 : 9,
-                onEndEditing: () => {
-                  const digitsOnly =
-                    form.documentNumber.replace(/\D/g, '')
-                  if (!digitsOnly)
-                    return setError(
-                      'documentNumber',
-                      'El número de documento es obligatorio'
-                    )
-                  if (
-                    form.documentType === 'ID_CARD' &&
-                    digitsOnly.length !== 11
+              keyboardType='number-pad'
+              maxLength={
+                form.documentType === 'ID_CARD' ? 13 : 9
+              }
+              onEndEditing={() => {
+                const digitsOnly =
+                  form.documentNumber.replace(/\D/g, '')
+                if (!digitsOnly)
+                  return setError(
+                    'documentNumber',
+                    'El número de documento es obligatorio'
                   )
-                    return setError(
-                      'documentNumber',
-                      'El número de cédula debe tener 11 dígitos'
-                    )
-                  if (
-                    form.documentType === 'PASSPORT' &&
-                    digitsOnly.length !== 7
+                if (
+                  form.documentType === 'ID_CARD' &&
+                  digitsOnly.length !== 11
+                )
+                  return setError(
+                    'documentNumber',
+                    'El número de cédula debe tener 11 dígitos'
                   )
-                    return setError(
-                      'documentNumber',
-                      'El número de pasaporte debe tener 7 dígitos'
-                    )
+                if (
+                  form.documentType === 'PASSPORT' &&
+                  digitsOnly.length !== 7
+                )
+                  return setError(
+                    'documentNumber',
+                    'El número de pasaporte debe tener 7 dígitos'
+                  )
 
-                  clearError('documentNumber')
-                }
+                clearError('documentNumber')
               }}
             />
           </View>

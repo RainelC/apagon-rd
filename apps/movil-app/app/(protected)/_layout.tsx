@@ -16,6 +16,7 @@ type TabIconProps = {
 const TABS_CONFIG = [
   {
     name: 'index',
+    headerTitle: 'Inicio',
     title: 'Inicio',
     icon: (props: TabIconProps) => (
       <AntDesign
@@ -27,6 +28,7 @@ const TABS_CONFIG = [
   },
   {
     name: 'report',
+    headerTitle: 'Reportar Apagón',
     title: 'Reportar',
     icon: (props: TabIconProps) => (
       <Octicons
@@ -38,6 +40,7 @@ const TABS_CONFIG = [
   },
   {
     name: 'my-reports',
+    headerTitle: 'Mis Reportes',
     title: 'Mis Reportes',
     icon: (props: TabIconProps) => (
       <FontAwesome
@@ -49,6 +52,7 @@ const TABS_CONFIG = [
   },
   {
     name: 'profile',
+    headerTitle: 'Mi Perfil',
     title: 'Mi Perfil',
     icon: (props: TabIconProps) => (
       <Ionicons
@@ -97,6 +101,7 @@ export default function ProtectedLayout() {
           key={tab.name}
           name={tab.name}
           options={{
+            headerTitle: tab.headerTitle,
             title: tab.title,
             tabBarIcon: tab.icon
           }}

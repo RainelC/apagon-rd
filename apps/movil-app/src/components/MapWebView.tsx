@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router'
 import { useRef, useEffect, useState } from 'react'
 import {
   View,
@@ -39,7 +40,83 @@ const MapWebView = () => {
     requestPermission()
   }, [])
 
-  const html = `
+  const onMessage = (event: WebViewMessageEvent) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data)
+      if (data.type === 'MAP_CLICK') {
+        setSelectedLocation(data.coords)
+        setShowReportButton(true)
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  const router = useRouter()
+  const handleAddReport = () => {
+    router.navigate({
+      pathname: '/(protected)/report',
+      params: {
+        lat: selectedLocation?.lat.toString() || '',
+        lng: selectedLocation?.lng.toString() || ''
+      }
+    })
+  }
+
+  return (
+    <View style={styles.container}>
+      <WebView
+        ref={webviewRef}
+        originWhitelist={['*']}
+        source={{ html }}
+        onMessage={onMessage}
+        geolocationEnabled={true}
+      />
+
+      {showReportButton && (
+        <TouchableOpacity
+          style={styles.floatingButton}
+          onPress={handleAddReport}
+        >
+          <Text style={styles.buttonText}>
+            Reportar ubicación
+          </Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#007bff',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold'
+  }
+})
+
+export { MapWebView }
+
+const html = `
 <!DOCTYPE html>
 <html>
   <head>
@@ -136,92 +213,3 @@ const MapWebView = () => {
   </body>
 </html>
 `
-  const onMessage = (event: WebViewMessageEvent) => {
-    try {
-      const data = JSON.parse(event.nativeEvent.data)
-      if (data.type === 'MAP_CLICK') {
-        console.log('Coordenadas:', data.coords)
-        setSelectedLocation(data.coords)
-        setShowReportButton(true)
-      }
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
-  const handleAddReport = () => {
-    if (selectedLocation) {
-      Alert.alert(
-        'Agregar Reporte',
-        `Lat: ${selectedLocation.lat.toFixed(
-          5
-        )}\nLng: ${selectedLocation.lng.toFixed(5)}`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Confirmar',
-            onPress: () => {
-              console.log(
-                'Reporte agregado en:',
-                selectedLocation
-              )
-            }
-          }
-        ]
-      )
-    }
-  }
-
-  return (
-    <View style={styles.container}>
-      <WebView
-        ref={webviewRef}
-        originWhitelist={['*']}
-        source={{ html }}
-        onMessage={onMessage}
-        geolocationEnabled={true}
-      />
-
-      {showReportButton && (
-        <TouchableOpacity
-          style={styles.floatingButton}
-          onPress={handleAddReport}
-        >
-          <Text style={styles.buttonText}>
-            Agregar reporte
-          </Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  )
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
-  floatingButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#007bff',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold'
-  }
-})
-
-export { MapWebView }

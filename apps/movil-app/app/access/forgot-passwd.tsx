@@ -98,21 +98,19 @@ export default function LoginScreen() {
             }
             label={'Nombre de Usuario'}
             placeholder={'Furgencio'}
-            props={{
-              autoCapitalize: 'none',
-              onEndEditing: () => {
-                if (!form.username)
-                  return setError(
-                    'username',
-                    'El nombre de Usuario es obligatorio'
-                  )
-                if (form.username.includes(' '))
-                  return setError(
-                    'username',
-                    'El nombre de Usuario no debe contener espacios'
-                  )
-                clearError('username')
-              }
+            autoCapitalize='none'
+            onEndEditing={() => {
+              if (!form.username)
+                return setError(
+                  'username',
+                  'El nombre de Usuario es obligatorio'
+                )
+              if (form.username.includes(' '))
+                return setError(
+                  'username',
+                  'El nombre de Usuario no debe contener espacios'
+                )
+              clearError('username')
             }}
           />
         </View>
