@@ -1,10 +1,12 @@
-import { Stack, Redirect } from 'expo-router'
+import { Redirect, Tabs } from 'expo-router'
 import {
   AuthProvider,
   AuthContext
 } from '@context/AuthContext'
-import { StatusBar } from 'react-native'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
+import * as NavigationBar from 'expo-navigation-bar'
+import { Platform } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
 import * as Linking from 'expo-linking'
 
 function RootLayoutNav() {
@@ -32,34 +34,19 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  useEffect(() => {
+    if (Platform.OS === 'android')
+      NavigationBar.setStyle('dark')
+  }, [])
+
   return (
     <AuthProvider>
-      <StatusBar barStyle='dark-content' />
+      <StatusBar style='dark' />
       <RootLayoutNav />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen
-          name='access/login'
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name='access/register'
-          options={{
-            title: 'Crear Cuenta',
-            headerShown: false
-          }}
-        />
-        <Stack.Screen
-          name='(protected)/index'
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name='auth/recover'
-          options={{
-            title: 'Recuperar contraseña',
-            headerShown: false
-          }}
-        />
-      </Stack>
+      <Tabs
+        screenOptions={{ headerShown: false }}
+        tabBar={() => null}
+      />
     </AuthProvider>
   )
 }
