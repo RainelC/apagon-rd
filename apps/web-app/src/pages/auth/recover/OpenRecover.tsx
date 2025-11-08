@@ -30,8 +30,8 @@ const OpenRecover: React.FC = () => {
     }
 
     // Scheme to try to open the app
-    const scheme = `apagonrd://auth/recover/${location.search}`
-    const androidIntent = `intent://auth/recover/${location.search}#Intent;scheme=apagonrd;package=com.anonymous.apagonrdmovilapp;end`
+    const scheme = `apagonrd://auth/recover${location.search}`
+    const androidIntent = `intent://auth/recover${location.search}#Intent;scheme=apagonrd;package=com.anonymous.apagonrdmovilapp;end`
 
     const onVisibilityChange = () => {
       // If the document becomes hidden, assume the app was opened and cancel fallback

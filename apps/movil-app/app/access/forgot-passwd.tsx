@@ -15,7 +15,6 @@ import { AuthService } from '@services/authService'
 import { COLORS } from '@constants/colors'
 import { GoBackButton } from '@components/GoBackButton'
 import { AxiosError } from 'axios'
-import { Link } from 'expo-router'
 
 const authService = new AuthService()
 
@@ -118,11 +117,6 @@ export default function LoginScreen() {
             }}
           />
         </View>
-        <Link href={'/auth/recover'}>
-          <Text style={styles.anotherWayText}>
-            Usar otro método
-          </Text>
-        </Link>
         <TouchableOpacity
           style={[
             styles.button,

@@ -14,64 +14,86 @@ import {
 import { AuthService } from '@services/authService'
 import { COLORS } from '@constants/colors'
 import { GoBackButton } from '@components/GoBackButton'
+import { Redirect, useLocalSearchParams } from 'expo-router'
 
 const authService = new AuthService()
 
 function RecoverScreen() {
-  const token = ''
+  const { token } = useLocalSearchParams()
   const { form, setField, errors, setError, clearError } =
     useForm({
       password: '',
       repeated: '',
-      token: token || ''
+      token: (token as string) || ' '
     })
 
   const [isLoading, setIsLoading] = useState(false)
 
   const handleForgotPasswd = async () => {
     setIsLoading(true)
-
+    form.token = token as string
+    console.log(form)
     const response = await authService.recoverPasswd(form)
-
-    if (response === 200) {
+    console.log(response)
+    if (response.status === 200) {
       Alert.alert(
         '¡Contraseña cambiada correctamente!',
         'Ya puedes iniciar sesión con tu nueva contraseña.'
       )
+      return <Redirect href={'access/forgot-passwd'} />
     }
 
-    if (response === 403) {
+    if (response.status === 403) {
       Alert.alert(
         'Enlace de recuperación invalido',
         'El enlace para restablecer la contraseña no es válido o ha caducado, posiblemente porque ya se había utilizado.'
+      )
+    }
+
+    if (response.status === 400) {
+      Alert.alert(
+        'Algo salió mal',
+        'Inténtelo de nuevo más tarde'
       )
     }
     setIsLoading(false)
   }
 
   const isValidForm = (): boolean => {
-    if (!/[A-Z]/.test(form.password)) {
+    if (form.password === '' || errors.password)
+      return false
+
+    if (form.password.length < 8 && !errors.password) {
       setError(
         'password',
-        'La contraseña debe contener al menos una mayúscula'
+        'La contraseña debe contener al menos 8 caracteres'
       )
       return false
     }
-    if (!/[a-z]/.test(form.password)) {
+    if (!/[a-z]/.test(form.password) && !errors.password) {
       setError(
         'password',
         'La contraseña debe contener al menos una minúscula'
       )
       return false
     }
-    if (!/[0-9]/.test(form.password)) {
+
+    if (!/[A-Z]/.test(form.password) && !errors.password) {
+      setError(
+        'password',
+        'La contraseña debe contener al menos una mayúscula'
+      )
+      return false
+    }
+
+    if (!/[0-9]/.test(form.password) && !errors.password) {
       setError(
         'password',
         'La contraseña debe contener al menos un numero'
       )
       return false
     }
-    if (!/\W/.test(form.password)) {
+    if (!/\W/.test(form.password) && !errors.password) {
       setError(
         'password',
         'La contraseña debe contener al menos un carácter especial'
@@ -79,29 +101,9 @@ function RecoverScreen() {
       return false
     }
 
-    if (form.password.length < 8) {
-      setError(
-        'password',
-        'La contraseña debe contener al menos 8 caracteres'
-      )
-      return false
-    }
-
-    if (form.password === '' || errors.password)
-      return false
-
     if (form.repeated === '' || errors.repeated)
       return false
 
-    if (form.password !== form.repeated) {
-      setError(
-        'repeated',
-        'Las contraseñas deben coincidir'
-      )
-      return false
-    }
-
-    setError('password', '')
     return true
   }
 
@@ -143,16 +145,20 @@ function RecoverScreen() {
               secureTextEntry: true,
               autoCapitalize: 'none',
               onChange: () => {
+                if (form.password.includes(' '))
+                  return setError(
+                    'password',
+                    'La contraseña no debe contener espacios'
+                  )
+                clearError('password')
+              },
+              onEndEditing: () => {
                 if (!form.password)
                   return setError(
                     'password',
                     'La contraseña es obligatoria'
                   )
-                if (form.password.includes(' '))
-                  return setError(
-                    'password',
-                    'El nombre de Usuario no debe contener espacios'
-                  )
+
                 clearError('password')
               }
             }}
@@ -169,15 +175,18 @@ function RecoverScreen() {
               secureTextEntry: true,
               autoCapitalize: 'none',
               onEndEditing: () => {
-                if (!form.password)
+                if (!form.repeated)
                   return setError(
                     'repeated',
-                    'La contraseña es obligatoria'
+                    'Debe repetir la contraseña'
                   )
-                if (form.repeated.includes(' '))
+                clearError('repeated')
+              },
+              onChange: () => {
+                if (form.password !== form.repeated)
                   return setError(
                     'repeated',
-                    'El nombre de Usuario no debe contener espacios'
+                    'Las contraseñas deben coincidir'
                   )
                 clearError('repeated')
               }

@@ -19,11 +19,11 @@ interface sendEmailProps {
 
 const AuthService = {
   async recoverPasswd(
-    datas: recoverPasswdProps
+    data: recoverPasswdProps
   ): Promise<number> {
     const { status } = await axiosInstance.post(
       '/account/recover',
-      datas
+      data
     )
     return status
   },

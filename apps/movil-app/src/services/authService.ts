@@ -9,7 +9,7 @@ enum Endpoint {
   RECOVER_PASSWORD = 'account/recover',
   CHANGE_PASSWORD = 'account/recover/change',
   SEND_RECUPERATION_EMAIL = 'account/recover/send',
-  VALIDATE_RECOVER_TOKEN = '/account/recover/validate?token='
+  VALIDATE_RECOVER_TOKEN = 'account/recover/validate?token='
 }
 
 class AuthService {
@@ -60,18 +60,22 @@ class AuthService {
         }
       )
     } catch (error: unknown) {
-      return error as AxiosError 
+      return error as AxiosError
     }
   }
 
-   async recoverPasswd(
-    datas: recoverPasswdProps
-  ): Promise<number> {
-    const { status } = await axios.post(
-     Endpoint.RECOVER_PASSWORD,
-      datas
-    )
-    return status
+  async recoverPasswd(
+    data: recoverPasswdProps
+  ): Promise<AxiosResponse | AxiosError> {
+    try {
+      console.log(data)
+      return await axios.post(
+        Endpoint.RECOVER_PASSWORD,
+        data
+      )
+    } catch (error: unknown) {
+      return error as AxiosError
+    }
   }
 
   async validateRecoverToken(token: string) {
@@ -82,6 +86,5 @@ class AuthService {
     return data.result
   }
 }
-
 
 export { AuthService }
