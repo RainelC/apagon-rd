@@ -1,5 +1,12 @@
+import { AuthContext } from '@context/AuthContext'
+import { MapService } from '@services/mapService'
 import { useRouter } from 'expo-router'
-import { useRef, useEffect, useState } from 'react'
+import {
+  useRef,
+  useEffect,
+  useState,
+  useContext
+} from 'react'
 import {
   View,
   PermissionsAndroid,
@@ -7,14 +14,19 @@ import {
   Alert,
   StyleSheet,
   TouchableOpacity,
-  Text
+  Text,
+  ActivityIndicator
 } from 'react-native'
 import {
   WebView,
   WebViewMessageEvent
 } from 'react-native-webview'
+import { Sector } from '../types/Sectors'
 
 const MapWebView = () => {
+  const auth = useContext(AuthContext)
+  const router = useRouter()
+  const [sectors, setSectors] = useState<Sector[]>([])
   const webviewRef = useRef<WebView>(null)
   const [showReportButton, setShowReportButton] =
     useState(false)
@@ -40,6 +52,35 @@ const MapWebView = () => {
     requestPermission()
   }, [])
 
+  useEffect(() => {
+    const fetchSectorsWithPolygons = async () => {
+      try {
+        if (!auth || !auth.token) return
+
+        const { token } = auth
+        const sectors = await MapService.getSectorsGeoJson(
+          token
+        )
+        setSectors(sectors)
+      } catch (error) {
+        console.log(error)
+        Alert.alert(
+          'Error',
+          'No se pudieron cargar los sectores'
+        )
+      }
+    }
+    fetchSectorsWithPolygons()
+  }, [auth])
+
+  if (!auth || !auth.token)
+    return (
+      <ActivityIndicator
+        size='large'
+        color='#0000ff'
+      />
+    )
+
   const onMessage = (event: WebViewMessageEvent) => {
     try {
       const data = JSON.parse(event.nativeEvent.data)
@@ -51,7 +92,6 @@ const MapWebView = () => {
       console.error(e)
     }
   }
-  const router = useRouter()
   const handleAddReport = () => {
     router.navigate({
       pathname: '/(protected)/report',
@@ -61,13 +101,12 @@ const MapWebView = () => {
       }
     })
   }
-
   return (
     <View style={styles.container}>
       <WebView
         ref={webviewRef}
         originWhitelist={['*']}
-        source={{ html }}
+        source={{ html: mapHtml(sectors) }}
         onMessage={onMessage}
         geolocationEnabled={true}
       />
@@ -116,7 +155,7 @@ const styles = StyleSheet.create({
 
 export { MapWebView }
 
-const html = `
+const mapHtml = (sectors: Sector[]) => `
 <!DOCTYPE html>
 <html>
   <head>
@@ -140,7 +179,7 @@ const html = `
   <body>
     <div id="map"></div>
     <script>
-      var map = L.map("map").setView([18.4861, -69.9312], 13);
+      var map = L.map("map").setView([18.63702, -69.79610], 11);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors",
@@ -173,29 +212,45 @@ const html = `
         );
       }
 
+      ${sectors
+        .map((sector) => {
+          return `L.polygon(${JSON.stringify(
+            sector.geojson.coordinates
+          )}, {color: '${
+            sector.status === 'NO_POWER' ? 'red' : 'green'
+          }'}).addTo(map).bindPopup('${
+            sector.name
+          } - Estado: ${
+            sector.status === 'NO_POWER'
+              ? 'Sin Energía'
+              : 'Con Energía'
+          }');`
+        })
+        .join('\n')}
+      
       map.on("click", function (e) {
         if (clickMarker) {
           map.removeLayer(clickMarker);
-        }
-
-        clickMarker = L.marker(e.latlng)
+          }
+          
+          clickMarker = L.marker(e.latlng)
           .addTo(map)
           .bindPopup(
             "Marcador en " +
-              e.latlng.lat.toFixed(5) +
-              ", " +
-              e.latlng.lng.toFixed(5)
-          )
-          .openPopup();
-
-        window.ReactNativeWebView.postMessage(
-          JSON.stringify({
-            type: "MAP_CLICK",
-            coords: e.latlng,
-          })
-        );
+            e.latlng.lat.toFixed(5) +
+            ", " +
+            e.latlng.lng.toFixed(5)
+            )
+            .openPopup();
+            
+            window.ReactNativeWebView.postMessage(
+              JSON.stringify({
+                type: "MAP_CLICK",
+                coords: e.latlng,
+                })
+                );
       });
-
+      
       document.addEventListener("message", function (event) {
         var data = JSON.parse(event.data);
         if (data.action === "addMarker") {
@@ -204,12 +259,12 @@ const html = `
           }
           
           clickMarker = L.marker([data.lat, data.lon])
-            .addTo(map)
-            .bindPopup(data.text || "Marcador agregado")
-            .openPopup();
-        }
-      });
-    </script>
-  </body>
-</html>
-`
+          .addTo(map)
+          .bindPopup(data.text || "Marcador agregado")
+          .openPopup();
+          }
+          });
+          </script>
+          </body>
+          </html>
+          `

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/accessible-emoji */
 import React, { useRef, useState } from 'react'
 import {
   SafeAreaView,
@@ -6,7 +5,6 @@ import {
   ScrollView,
   View,
   Text,
-  StatusBar,
   TouchableOpacity,
   Linking
 } from 'react-native'
@@ -37,7 +35,7 @@ export const App = () => {
             testID='heading'
             role='heading'
           >
-            Welcome MovilApp 👋
+            Welcome MovilApp
           </Text>
         </View>
         <View style={styles.section}>

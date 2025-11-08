@@ -35,13 +35,10 @@ export default function LoginScreen() {
     try {
       setIsLoading(true)
 
-      // Llamo a la api
       const response = await authService.login(
         form.username,
         form.password
       )
-      console.log(response)
-      // guardo el token y el usuario en el authcontext
       await signIn(response.token)
 
       router.replace('/(protected)')

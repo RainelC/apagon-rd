@@ -34,7 +34,6 @@ class ReportService {
       if (imageResponse.status !== 200)
         throw new Error('Error uploading image')
 
-      console.log(imageResponse.data.uri)
       report.imageUri = imageResponse.data.uri
     }
 
@@ -51,7 +50,6 @@ class ReportService {
 
     if (response.status !== 200 && response.status !== 201)
       throw new Error('Error creating report')
-    console.log(response.data)
     return response.data
   }
 }
