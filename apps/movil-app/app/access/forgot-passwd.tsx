@@ -10,7 +10,6 @@ import {
   Platform,
   Alert,
   Image,
-  Pressable
 } from 'react-native'
 import { AuthService } from '@services/authService'
 import { COLORS } from '@constants/colors'
@@ -34,11 +33,13 @@ export default function LoginScreen() {
       form.username
     )
 
-    if (response.status === 200)
+    if (response.status === 200) {
       Alert.alert(
         'Enlace enviado',
         '¡Te hemos enviado un correo de recuperación! Si no lo encuentras, revisa tu bandeja de spam, a veces se enconden ahí ;) '
       )
+      form.username = ''
+    }
 
     if (response instanceof AxiosError) {
       if (response.status === 404) {
@@ -116,11 +117,6 @@ export default function LoginScreen() {
             }}
           />
         </View>
-        <Pressable>
-          <Text style={styles.anotherWayText}>
-            Usar otro método
-          </Text>
-        </Pressable>
         <TouchableOpacity
           style={[
             styles.button,

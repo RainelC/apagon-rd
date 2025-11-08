@@ -34,6 +34,9 @@ const Recover = () => {
   })
 
   useEffect(() => {
+    if (!token)
+      return setStatus({ error: true, code: Status.BAD_REQUEST })
+
     const fetchData = async () => {
       const isValidated =
         await AuthService.validateRecoverToken(token || '')
@@ -42,9 +45,6 @@ const Recover = () => {
       else setStatus({ error: false, code: Status.LOADED })
     }
 
-    if (!token) {
-      setStatus({ error: true, code: Status.BAD_REQUEST })
-    }
     fetchData()
   }, [token])
 
