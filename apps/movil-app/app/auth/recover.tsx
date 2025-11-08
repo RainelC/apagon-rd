@@ -32,9 +32,7 @@ function RecoverScreen() {
   const handleForgotPasswd = async () => {
     setIsLoading(true)
     form.token = token as string
-    console.log(form)
     const response = await authService.recoverPasswd(form)
-    console.log(response)
     if (response.status === 200) {
       Alert.alert(
         '¡Contraseña cambiada correctamente!',
