@@ -5,18 +5,14 @@ const DarkModeSwitch = () => {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    // Verificar tema actual al montar
     const checkDarkMode = () => {
       const isDarkMode = document.documentElement.classList.contains('dark');
-      console.log('Dark mode check:', isDarkMode);
       setIsDark(isDarkMode);
     };
 
     checkDarkMode();
 
-    // Escuchar cambios en la clase del HTML
     const observer = new MutationObserver((mutations) => {
-      console.log('HTML class changed');
       checkDarkMode();
     });
 
@@ -30,8 +26,7 @@ const DarkModeSwitch = () => {
 
   const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
-    console.log('Toggle dark mode:', checked);
-    
+
     setIsDark(checked);
     
     if (checked) {

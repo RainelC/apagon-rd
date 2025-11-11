@@ -19,9 +19,9 @@
 }
 
 .slider {
-  --background: #28096b;
+  --background: #7c3aed;
   position: absolute;
-  cursor: pointer; 
+  cursor: pointer;
   top: 0;
   left: 0;
   right: 0;
@@ -40,16 +40,16 @@
   border-radius: 50%;
   left: 10%;
   bottom: 15%;
-  box-shadow: inset 8px -4px 0px 0px #fff000;
+  box-shadow: inset 8px -4px 0px 0px #fbbf24;
   background: var(--background);
   transition: transform 0.5s ease;
 }
 
 .input:checked ~ .slider {
-  background-color: #522ba7;
+  background-color: #a78bfa;
 }
 
 .input:checked ~ .slider::before {
   transform: translateX(100%);
-  box-shadow: inset 15px -4px 0px 15px #fff000;
+  box-shadow: inset 15px -4px 0px 15px #fbbf24;
 }
