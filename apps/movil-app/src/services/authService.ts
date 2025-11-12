@@ -1,7 +1,7 @@
 import { AxiosError, AxiosResponse } from 'axios'
-import axios from '../api/apiClient'
 import type { CreateUser } from '../types/createUser'
 import recoverPasswdProps from '../types/recover'
+import { axiosInstance } from '../api/apiClient'
 
 enum Endpoint {
   REGISTER = 'users/register',
@@ -14,7 +14,7 @@ enum Endpoint {
 
 class AuthService {
   async register(user: CreateUser) {
-    const { statusText, data } = await axios.post(
+    const { statusText, data } = await axiosInstance.post(
       Endpoint.REGISTER,
       {
         ...user
@@ -31,7 +31,7 @@ class AuthService {
   }
 
   async login(username: string, password: string) {
-    const { data, status } = await axios.post(
+    const { data, status } = await axiosInstance.post(
       Endpoint.LOGIN,
       {},
       {
@@ -53,7 +53,7 @@ class AuthService {
     username: string
   ): Promise<AxiosResponse | AxiosError> {
     try {
-      return await axios.post(
+      return await axiosInstance.post(
         Endpoint.SEND_RECUPERATION_EMAIL,
         {
           username: username
@@ -69,7 +69,7 @@ class AuthService {
   ): Promise<AxiosResponse | AxiosError> {
     try {
       console.log(data)
-      return await axios.post(
+      return await axiosInstance.post(
         Endpoint.RECOVER_PASSWORD,
         data
       )
@@ -79,7 +79,7 @@ class AuthService {
   }
 
   async validateRecoverToken(token: string) {
-    const { data } = await axios.post(
+    const { data } = await axiosInstance.post(
       Endpoint.VALIDATE_RECOVER_TOKEN + token,
       {}
     )

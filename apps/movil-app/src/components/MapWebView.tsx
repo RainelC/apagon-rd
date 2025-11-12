@@ -1,4 +1,12 @@
-import { useRef, useEffect, useState } from 'react'
+import { AuthContext } from '@context/AuthContext'
+import { MapService } from '@services/mapService'
+import { useRouter } from 'expo-router'
+import {
+  useRef,
+  useEffect,
+  useState,
+  useContext
+} from 'react'
 import {
   View,
   PermissionsAndroid,
@@ -6,14 +14,19 @@ import {
   Alert,
   StyleSheet,
   TouchableOpacity,
-  Text
+  Text,
+  ActivityIndicator
 } from 'react-native'
 import {
   WebView,
   WebViewMessageEvent
 } from 'react-native-webview'
+import { Sector } from '../types/Sectors'
 
 const MapWebView = () => {
+  const auth = useContext(AuthContext)
+  const router = useRouter()
+  const [sectors, setSectors] = useState<Sector[]>([])
   const webviewRef = useRef<WebView>(null)
   const [showReportButton, setShowReportButton] =
     useState(false)
@@ -39,108 +52,39 @@ const MapWebView = () => {
     requestPermission()
   }, [])
 
-  const html = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta
-      name="viewport"
-      content="initial-scale=1,maximum-scale=1,user-scalable=no"
-    />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <style>
-      body,
-      html,
-      #map {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
+  useEffect(() => {
+    const fetchSectorsWithPolygons = async () => {
+      try {
+        if (!auth || !auth.token) return
+
+        const { token } = auth
+        const sectors = await MapService.getSectorsGeoJson(
+          token
+        )
+        setSectors(sectors)
+      } catch (error) {
+        console.log(error)
+        Alert.alert(
+          'Error',
+          'No se pudieron cargar los sectores'
+        )
       }
-    </style>
-  </head>
-  <body>
-    <div id="map"></div>
-    <script>
-      var map = L.map("map").setView([18.4861, -69.9312], 13);
+    }
+    fetchSectorsWithPolygons()
+  }, [auth])
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors",
-      }).addTo(map);
+  if (!auth || !auth.token)
+    return (
+      <ActivityIndicator
+        size='large'
+        color='#0000ff'
+      />
+    )
 
-      var userMarker;
-      var clickMarker;
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          function (pos) {
-            var lat = pos.coords.latitude;
-            var lon = pos.coords.longitude;
-
-            map.setView([lat, lon], 15);
-
-            userMarker = L.marker([lat, lon])
-              .addTo(map)
-              .bindPopup("Estás aquí")
-              .openPopup();
-          },
-          function (error) {
-            console.error("Error obteniendo ubicación:", error);
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0,
-          }
-        );
-      }
-
-      map.on("click", function (e) {
-        if (clickMarker) {
-          map.removeLayer(clickMarker);
-        }
-
-        clickMarker = L.marker(e.latlng)
-          .addTo(map)
-          .bindPopup(
-            "Marcador en " +
-              e.latlng.lat.toFixed(5) +
-              ", " +
-              e.latlng.lng.toFixed(5)
-          )
-          .openPopup();
-
-        window.ReactNativeWebView.postMessage(
-          JSON.stringify({
-            type: "MAP_CLICK",
-            coords: e.latlng,
-          })
-        );
-      });
-
-      document.addEventListener("message", function (event) {
-        var data = JSON.parse(event.data);
-        if (data.action === "addMarker") {
-          if (clickMarker) {
-            map.removeLayer(clickMarker);
-          }
-          
-          clickMarker = L.marker([data.lat, data.lon])
-            .addTo(map)
-            .bindPopup(data.text || "Marcador agregado")
-            .openPopup();
-        }
-      });
-    </script>
-  </body>
-</html>
-`
   const onMessage = (event: WebViewMessageEvent) => {
     try {
       const data = JSON.parse(event.nativeEvent.data)
       if (data.type === 'MAP_CLICK') {
-        console.log('Coordenadas:', data.coords)
         setSelectedLocation(data.coords)
         setShowReportButton(true)
       }
@@ -148,36 +92,21 @@ const MapWebView = () => {
       console.error(e)
     }
   }
-
   const handleAddReport = () => {
-    if (selectedLocation) {
-      Alert.alert(
-        'Agregar Reporte',
-        `Lat: ${selectedLocation.lat.toFixed(
-          5
-        )}\nLng: ${selectedLocation.lng.toFixed(5)}`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Confirmar',
-            onPress: () => {
-              console.log(
-                'Reporte agregado en:',
-                selectedLocation
-              )
-            }
-          }
-        ]
-      )
-    }
+    router.navigate({
+      pathname: '/(protected)/report',
+      params: {
+        lat: selectedLocation?.lat.toString() || '',
+        lng: selectedLocation?.lng.toString() || ''
+      }
+    })
   }
-
   return (
     <View style={styles.container}>
       <WebView
         ref={webviewRef}
         originWhitelist={['*']}
-        source={{ html }}
+        source={{ html: mapHtml(sectors) }}
         onMessage={onMessage}
         geolocationEnabled={true}
       />
@@ -188,7 +117,7 @@ const MapWebView = () => {
           onPress={handleAddReport}
         >
           <Text style={styles.buttonText}>
-            Agregar reporte
+            Reportar ubicación
           </Text>
         </TouchableOpacity>
       )}
@@ -225,3 +154,117 @@ const styles = StyleSheet.create({
 })
 
 export { MapWebView }
+
+const mapHtml = (sectors: Sector[]) => `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+      body,
+      html,
+      #map {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      var map = L.map("map").setView([18.63702, -69.79610], 11);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(map);
+
+      var userMarker;
+      var clickMarker;
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function (pos) {
+            var lat = pos.coords.latitude;
+            var lon = pos.coords.longitude;
+
+            map.setView([lat, lon], 15);
+
+            userMarker = L.marker([lat, lon])
+              .addTo(map)
+              .bindPopup("Estás aquí")
+              .openPopup();
+          },
+          function (error) {
+            console.error("Error obteniendo ubicación:", error);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0,
+          }
+        );
+      }
+
+      ${sectors
+        .map((sector) => {
+          return `L.polygon(${JSON.stringify(
+            sector.geojson.coordinates
+          )}, {color: '${
+            sector.status === 'NO_POWER' ? 'red' : 'green'
+          }'}).addTo(map).bindPopup('${
+            sector.name
+          } - Estado: ${
+            sector.status === 'NO_POWER'
+              ? 'Sin Energía'
+              : 'Con Energía'
+          }');`
+        })
+        .join('\n')}
+      
+      map.on("click", function (e) {
+        if (clickMarker) {
+          map.removeLayer(clickMarker);
+          }
+          
+          clickMarker = L.marker(e.latlng)
+          .addTo(map)
+          .bindPopup(
+            "Marcador en " +
+            e.latlng.lat.toFixed(5) +
+            ", " +
+            e.latlng.lng.toFixed(5)
+            )
+            .openPopup();
+            
+            window.ReactNativeWebView.postMessage(
+              JSON.stringify({
+                type: "MAP_CLICK",
+                coords: e.latlng,
+                })
+                );
+      });
+      
+      document.addEventListener("message", function (event) {
+        var data = JSON.parse(event.data);
+        if (data.action === "addMarker") {
+          if (clickMarker) {
+            map.removeLayer(clickMarker);
+          }
+          
+          clickMarker = L.marker([data.lat, data.lon])
+          .addTo(map)
+          .bindPopup(data.text || "Marcador agregado")
+          .openPopup();
+          }
+          });
+          </script>
+          </body>
+          </html>
+          `

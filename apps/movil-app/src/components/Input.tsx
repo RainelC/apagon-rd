@@ -7,23 +7,22 @@ import {
   View
 } from 'react-native'
 
-interface InputProps {
+interface InputProps extends TextInputProps {
   value: string
   onChangeText: (text: string) => void
   label: string
   placeholder: string
-  props?: TextInputProps
   error?: string
 }
 
-const Input = ({
+const Input: React.FC<InputProps> = ({
   label,
   placeholder,
-  props = {},
   value,
   onChangeText,
-  error
-}: InputProps) => {
+  error,
+  ...props
+}) => {
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.label}>{label}</Text>
@@ -65,7 +64,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#ff4d4f',
     fontSize: 10,
-    marginTop: 2,
+    marginTop: 2
   }
 })
 

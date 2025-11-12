@@ -12,21 +12,20 @@ import * as Linking from 'expo-linking'
 function RootLayoutNav() {
   const auth = useContext(AuthContext)
 
-    /// We have to test this fuctions with the apk
-    async function getInitialDeepLink() {
+  /// We have to test this fuctions with the apk
+  async function getInitialDeepLink() {
     const url = await Linking.getLinkingURL()
     console.log(url)
     console.log(await Linking.getInitialURL())
     if (url) {
       console.log('App launched with URL:', url)
-      return <Redirect href={url}/>
+      return <Redirect href={url} />
     } else {
       console.log('App not launched by a deep link.')
     }
   }
 
   getInitialDeepLink()
-
 
   if (auth?.loading) return null
   if (!auth?.token) return <Redirect href='/access/login' />

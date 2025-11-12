@@ -33,13 +33,10 @@ export default function LoginScreen() {
     try {
       setIsLoading(true)
 
-      // Llamo a la api
       const response = await authService.login(
         form.username,
         form.password
       )
-      console.log(response  )
-      // guardo el token y el usuario en el authcontext
       await signIn(response.token)
 
       router.replace('/(protected)')
@@ -48,7 +45,7 @@ export default function LoginScreen() {
         Alert.alert(
           error.message || 'Error al iniciar sesion'
         )
-        console.log(error)
+      console.log(error)
     } finally {
       setIsLoading(false)
       setField('password', '')
@@ -87,22 +84,20 @@ export default function LoginScreen() {
             }
             label='Nombre de Usuario'
             placeholder='example@gmail.com'
-            props={{
-              keyboardType: 'email-address',
-              autoCapitalize: 'none',
-              onEndEditing: () => {
-                if (!form.username)
-                  return setError(
-                    'username',
-                    'El nombre de usuario es obligatorio'
-                  )
-                if (form.username.includes(' '))
-                  return setError(
-                    'username',
-                    'El nombre de usuario no debe contener espacios'
-                  )
-                clearError('username')
-              }
+            keyboardType='email-address'
+            autoCapitalize='none'
+            onEndEditing={() => {
+              if (!form.username)
+                return setError(
+                  'username',
+                  'El nombre de usuario es obligatorio'
+                )
+              if (form.username.includes(' '))
+                return setError(
+                  'username',
+                  'El nombre de usuario no debe contener espacios'
+                )
+              clearError('username')
             }}
           />
           <Input
@@ -113,17 +108,15 @@ export default function LoginScreen() {
             }
             label='Contraseña'
             placeholder='Ingrese su contraseña'
-            props={{
-              secureTextEntry: true,
-              autoCapitalize: 'none',
-              onEndEditing: () => {
-                if (!form.password)
-                  return setError(
-                    'password',
-                    'La contraseña es obligatoria'
-                  )
-                clearError('password')
-              }
+            secureTextEntry={true}
+            autoCapitalize='none'
+            onEndEditing={() => {
+              if (!form.password)
+                return setError(
+                  'password',
+                  'La contraseña es obligatoria'
+                )
+              clearError('password')
             }}
           />
           <Link
