@@ -4,7 +4,7 @@ Mobile application that displays real-time electricity service availability acro
 
 ## Technologies
 
-**Frontend:** React, React Native
+**Frontend:** React Native
 
 **Base de Datos:** AWS, SQL
 
@@ -12,7 +12,7 @@ Mobile application that displays real-time electricity service availability acro
 
 **Backend:** Java
 
-**Frameworks and tools:** Expo, Nx
+**Frameworks and tools:** Expo
 
 ## Get started
 
@@ -22,24 +22,8 @@ Mobile application that displays real-time electricity service availability acro
    npm install
    ```
 
-2. Start the apps
+2. Start the app
 
-- Start movil app
-
-```bash
-  pnpx nx run @apagon-rd/movil-app:start
-```
-
-```bash
-  pnpm -F .\apps\movil-app\ exec expo start
-```
-
-- Start web app
-
-```bash
-  pnpx nx run @apagon-rd/web-app:dev
-```
-
-```bash
-  pnpm -F .\apps\web-app\ exec vite
-```
+   ```bash
+   npx expo start
+   ```

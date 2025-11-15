@@ -1,13 +1,32 @@
 {
   "extends": "./tsconfig.base.json",
-  "compileOnSave": false,
   "files": [],
+  "include": [],
   "references": [
     {
-      "path": "./apps/movil-app"
-    },
-    {
-      "path": "./apps/web-app"
+      "path": "./tsconfig.app.json"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@context/*": [
+        "./src/context/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+      "@services/*": [
+        "./src/services/*"
+      ],
+      "@constants/*": [
+        "./src/constants/*"
+      ]
+    }
+  }
 }
