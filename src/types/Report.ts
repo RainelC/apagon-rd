@@ -1,3 +1,6 @@
+import { Sector } from './Sectors'
+import { User } from './User'
+
 interface AddReport {
   latitude: string
   longitude: string
@@ -8,4 +11,18 @@ interface AddReport {
   imageUri: string
 }
 
-export type { AddReport }
+interface Report {
+  id: number
+  createdAt: string
+  updatedAt: string
+  user: User
+  sector: Sector
+  description: string
+  outageType: string
+  status: string
+  photoUrl: string
+  latitude: number
+  longitude: number
+}
+
+export type { AddReport, Report }

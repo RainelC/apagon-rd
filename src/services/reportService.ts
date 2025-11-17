@@ -1,9 +1,10 @@
 import { axiosInstance } from '../api/apiClient'
-import { AddReport } from '../types/Report'
+import { AddReport, Report } from '../types/Report'
 
 enum Endpoint {
   UPLOAD_IMAGE = 'files/upload',
-  CREATE = 'reports'
+  CREATE = 'reports',
+  GET_ALL = 'reports'
 }
 
 class ReportService {
@@ -14,7 +15,6 @@ class ReportService {
     if (report.imageUri) {
       const formData = new FormData()
 
-
       formData.append('file', {
         uri: report.imageUri,
         type: 'image/*',
@@ -23,13 +23,7 @@ class ReportService {
 
       const imageResponse = await axiosInstance.post(
         'files/upload',
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-          }
-        }
+        formData
       )
       if (imageResponse.status !== 200)
         throw new Error('Error uploading image')
@@ -39,18 +33,32 @@ class ReportService {
 
     const response = await axiosInstance.post(
       Endpoint.CREATE,
-      report,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      }
+      report
     )
 
     if (response.status !== 200 && response.status !== 201)
       throw new Error('Error creating report')
     return response.data
+  }
+
+  static async getAllReports(
+    userId: number,
+    status?: string
+  ): Promise<Report[]> {
+    const params: any = { userId }
+    if (status) {
+      params.status = status
+    }
+    const response = await axiosInstance.get(
+      Endpoint.GET_ALL,
+      {
+        params
+      }
+    )
+
+    if (response.status !== 200)
+      throw new Error('Error fetching reports')
+    return response.data.content
   }
 }
 

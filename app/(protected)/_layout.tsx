@@ -1,12 +1,17 @@
-import { Tabs } from 'expo-router'
+import { COLORS } from '@constants/colors'
 import {
   AntDesign,
-  Octicons,
   FontAwesome,
-  Ionicons
+  Ionicons,
+  Octicons
 } from '@expo/vector-icons'
-import { COLORS } from '@constants/colors'
-import { Pressable, PressableProps } from 'react-native'
+import { Tabs } from 'expo-router'
+import {
+  Pressable,
+  PressableProps,
+  StyleSheet,
+  Text
+} from 'react-native'
 
 type TabIconProps = {
   color: string
@@ -101,7 +106,11 @@ export default function ProtectedLayout() {
           key={tab.name}
           name={tab.name}
           options={{
-            headerTitle: tab.headerTitle,
+            headerTitle: () => (
+              <Text style={styles.headerTitle}>
+                {tab.headerTitle}
+              </Text>
+            ),
             title: tab.title,
             tabBarIcon: tab.icon
           }}
@@ -110,3 +119,11 @@ export default function ProtectedLayout() {
     </Tabs>
   )
 }
+
+const styles = StyleSheet.create({
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#000000'
+  }
+})
