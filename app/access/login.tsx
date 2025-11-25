@@ -20,11 +20,10 @@ import { AxiosError } from 'axios'
 const authService = new AuthService()
 
 export default function LoginScreen() {
-  const { form, setField, errors, setError, clearError } =
-    useForm({
-      username: '',
-      password: ''
-    })
+  const { form, setField, errors, setError, clearError } = useForm({
+    username: '',
+    password: ''
+  })
 
   const { signIn } = useContext(AuthContext)!
   const [isLoading, setIsLoading] = useState(false)
@@ -33,18 +32,13 @@ export default function LoginScreen() {
     try {
       setIsLoading(true)
 
-      const response = await authService.login(
-        form.username,
-        form.password
-      )
+      const response = await authService.login(form.username, form.password)
       await signIn(response.token)
 
       router.replace('/(protected)')
     } catch (error) {
-      if (error instanceof AxiosError)
-        Alert.alert(
-          error.message || 'Error al iniciar sesion'
-        )
+      if (error instanceof Error)
+        Alert.alert('Error al iniciar sesion', error.message)
       console.log(error)
     } finally {
       setIsLoading(false)
@@ -53,8 +47,7 @@ export default function LoginScreen() {
   }
 
   const isValidForm = (): boolean => {
-    if (Object.values(form).some((value) => value === ''))
-      return false
+    if (Object.values(form).some(value => value === '')) return false
 
     return true
   }
@@ -63,25 +56,19 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={
-        Platform.OS === 'ios' ? 'padding' : 'height'
-      }
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
       <View style={styles.screen}>
         <View style={styles.header}>
           <Text style={styles.title}>Inicia sesion</Text>
-          <Text style={styles.subtle}>
-            Accede a tu cuenta para continuar
-          </Text>
+          <Text style={styles.subtle}>Accede a tu cuenta para continuar</Text>
         </View>
         <View style={styles.inputsContainer}>
           <Input
             value={form.username}
             error={errors.username}
-            onChangeText={(text) =>
-              setField('username', text)
-            }
+            onChangeText={text => setField('username', text)}
             label='Nombre de Usuario'
             placeholder='example@gmail.com'
             keyboardType='email-address'
@@ -103,19 +90,14 @@ export default function LoginScreen() {
           <Input
             value={form.password}
             error={errors.password}
-            onChangeText={(text) =>
-              setField('password', text)
-            }
+            onChangeText={text => setField('password', text)}
             label='Contraseña'
             placeholder='Ingrese su contraseña'
             secureTextEntry={true}
             autoCapitalize='none'
             onEndEditing={() => {
               if (!form.password)
-                return setError(
-                  'password',
-                  'La contraseña es obligatoria'
-                )
+                return setError('password', 'La contraseña es obligatoria')
               clearError('password')
             }}
           />
@@ -130,8 +112,7 @@ export default function LoginScreen() {
         <TouchableOpacity
           style={[
             styles.loginButton,
-            (isLoading || !valid) &&
-              styles.loginButtonDisabled
+            (isLoading || !valid) && styles.loginButtonDisabled
           ]}
           onPress={handleLogin}
           disabled={!valid || isLoading}
@@ -142,16 +123,12 @@ export default function LoginScreen() {
         </TouchableOpacity>
 
         <View style={styles.signupContainer}>
-          <Text style={styles.signupText}>
-            No tienes una cuenta?{' '}
-          </Text>
+          <Text style={styles.signupText}>No tienes una cuenta? </Text>
           <Link
             href='/access/register'
             replace
           >
-            <Text style={styles.signupLink}>
-              Registrate.
-            </Text>
+            <Text style={styles.signupLink}>Registrate.</Text>
           </Link>
         </View>
       </View>

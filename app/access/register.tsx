@@ -2,45 +2,37 @@ import { Input } from '@components/Input'
 import { useForm } from '@hooks/useForm'
 import { Link, router } from 'expo-router'
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
+  Alert,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   Pressable,
-  ScrollView
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native'
 
-import { AuthService } from '@services/authService'
-import { DocumentType } from '../../src/types/documentType'
 import { RadioButton } from '@components/RadioInput'
-import { CreateUser } from '../../src/types/createUser'
 import { COLORS } from '@constants/colors'
-import { AxiosError } from 'axios'
+import { AuthService } from '@services/authService'
 import { useState } from 'react'
+import type { CreateUser } from '../../src/types/createUser'
+import type { DocumentType } from '../../src/types/documentType'
 
 const authService = new AuthService()
 
 export default function Register() {
-  const {
-    form,
-    setField,
-    resetForm,
-    setFields,
-    errors,
-    setError,
-    clearError
-  } = useForm<CreateUser>({
-    firstname: '',
-    lastname: '',
-    username: '',
-    password: '',
-    email: '',
-    documentType: 'ID_CARD',
-    documentNumber: ''
-  })
+  const { form, setField, resetForm, setFields, errors, setError, clearError } =
+    useForm<CreateUser>({
+      firstname: '',
+      lastname: '',
+      username: '',
+      password: '',
+      email: '',
+      documentType: 'ID_CARD',
+      documentNumber: ''
+    })
   const [loading, setLoading] = useState(false)
 
   const documentTypeChange = (type: DocumentType) => {
@@ -53,34 +45,21 @@ export default function Register() {
   const onSubmit = async () => {
     setLoading(true)
     try {
-      const created = await authService.register(form)
-      if (!created)
-        throw new Error('No se pudo crear el usuario')
-      Alert.alert(
-        'Registro Exitoso',
-        'Bienvenido! Su cuenta ha sido creada.'
-      )
+      await authService.register(form)
       resetForm()
       router.replace('/access/login')
+      Alert.alert('Registro Exitoso', 'Bienvenido! Su cuenta ha sido creada.')
     } catch (error) {
-      if (error instanceof AxiosError) {
-        Alert.alert(
-          'Error al registrarse',
-          error.response?.data.message
-        )
-      }
+      if (error instanceof Error)
+        Alert.alert('Error al registrarse', error.message)
     } finally {
       setLoading(false)
     }
   }
 
   const isValidForm = (): boolean => {
-    if (Object.values(form).some((value) => value === ''))
-      return false
-    if (
-      Object.values(errors).some((value) => Boolean(value))
-    )
-      return false
+    if (Object.values(form).some(value => value === '')) return false
+    if (Object.values(errors).some(value => Boolean(value))) return false
 
     return true
   }
@@ -99,26 +78,19 @@ export default function Register() {
     if (part2) formattedDocumentNumber += `-${part2}`
     if (part3) formattedDocumentNumber += `-${part3}`
   } else {
-    formattedDocumentNumber = `RD${digitsOnly.slice(
-      0,
-      7
-    )}`.toUpperCase()
+    formattedDocumentNumber = `RD${digitsOnly.slice(0, 7)}`.toUpperCase()
   }
 
   return (
     <KeyboardAvoidingView
-      behavior={
-        Platform.OS === 'ios' ? 'padding' : 'height'
-      }
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
       <ScrollView>
         <View style={styles.screen}>
           <View style={styles.header}>
             <Text style={styles.title}>Registrate</Text>
-            <Text style={styles.subtle}>
-              Crea una cuenta para continuar.
-            </Text>
+            <Text style={styles.subtle}>Crea una cuenta para continuar.</Text>
           </View>
           <View style={styles.inputsContainer}>
             <View style={styles.inputGroup}>
@@ -126,17 +98,12 @@ export default function Register() {
                 <Input
                   value={form.firstname}
                   error={errors.firstname}
-                  onChangeText={(text) =>
-                    setField('firstname', text)
-                  }
+                  onChangeText={text => setField('firstname', text)}
                   label='Nombre'
                   placeholder='Ingrese su nombre'
                   onEndEditing={() => {
                     if (!form.firstname)
-                      return setError(
-                        'firstname',
-                        'El nombre es obligatorio'
-                      )
+                      return setError('firstname', 'El nombre es obligatorio')
 
                     clearError('firstname')
                   }}
@@ -146,17 +113,12 @@ export default function Register() {
                 <Input
                   value={form.lastname}
                   error={errors.lastname}
-                  onChangeText={(text) =>
-                    setField('lastname', text)
-                  }
+                  onChangeText={text => setField('lastname', text)}
                   label='Apellido'
                   placeholder='Ingrese su apellido'
                   onEndEditing={() => {
                     if (!form.lastname)
-                      return setError(
-                        'lastname',
-                        'El apellido es obligatorio'
-                      )
+                      return setError('lastname', 'El apellido es obligatorio')
                     clearError('lastname')
                   }}
                 />
@@ -165,9 +127,7 @@ export default function Register() {
             <Input
               value={form.username}
               error={errors.username}
-              onChangeText={(text) =>
-                setField('username', text)
-              }
+              onChangeText={text => setField('username', text)}
               label='Nombre de Usuario'
               placeholder='Ingrese su nombre de usuario'
               autoCapitalize='none'
@@ -188,9 +148,7 @@ export default function Register() {
             <Input
               value={form.email}
               error={errors.email}
-              onChangeText={(text) =>
-                setField('email', text)
-              }
+              onChangeText={text => setField('email', text)}
               label='Correo Electrónico'
               placeholder='Ingrese su correo electrónico'
               keyboardType='email-address'
@@ -201,22 +159,16 @@ export default function Register() {
                     'email',
                     'El correo electrónico es obligatorio'
                   )
-                const emailRegex =
-                  /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
                 if (!emailRegex.test(form.email))
-                  return setError(
-                    'email',
-                    'El correo electrónico no es válido'
-                  )
+                  return setError('email', 'El correo electrónico no es válido')
                 clearError('email')
               }}
             />
             <Input
               value={form.password}
               error={errors.password}
-              onChangeText={(text) =>
-                setField('password', text)
-              }
+              onChangeText={text => setField('password', text)}
               label='Contraseña'
               placeholder='Ingrese su contraseña'
               secureTextEntry={true}
@@ -251,35 +203,24 @@ export default function Register() {
             <Input
               value={formattedDocumentNumber}
               error={errors.documentNumber}
-              onChangeText={(text) =>
-                setField('documentNumber', text)
-              }
+              onChangeText={text => setField('documentNumber', text)}
               label='Número de Documento'
               placeholder='Ingrese su número de cédula'
               keyboardType='number-pad'
-              maxLength={
-                form.documentType === 'ID_CARD' ? 13 : 9
-              }
+              maxLength={form.documentType === 'ID_CARD' ? 13 : 9}
               onEndEditing={() => {
-                const digitsOnly =
-                  form.documentNumber.replace(/\D/g, '')
+                const digitsOnly = form.documentNumber.replace(/\D/g, '')
                 if (!digitsOnly)
                   return setError(
                     'documentNumber',
                     'El número de documento es obligatorio'
                   )
-                if (
-                  form.documentType === 'ID_CARD' &&
-                  digitsOnly.length !== 11
-                )
+                if (form.documentType === 'ID_CARD' && digitsOnly.length !== 11)
                   return setError(
                     'documentNumber',
                     'El número de cédula debe tener 11 dígitos'
                   )
-                if (
-                  form.documentType === 'PASSPORT' &&
-                  digitsOnly.length !== 7
-                )
+                if (form.documentType === 'PASSPORT' && digitsOnly.length !== 7)
                   return setError(
                     'documentNumber',
                     'El número de pasaporte debe tener 7 dígitos'
@@ -304,16 +245,12 @@ export default function Register() {
             </TouchableOpacity>
           </View>
           <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>
-              Ya tienes una cuenta?{' '}
-            </Text>
+            <Text style={styles.loginText}>Ya tienes una cuenta? </Text>
             <Link
               href='/access/login'
               replace
             >
-              <Text style={styles.loginLink}>
-                Inicia sesion.
-              </Text>
+              <Text style={styles.loginLink}>Inicia sesion.</Text>
             </Link>
           </View>
         </View>
@@ -389,10 +326,7 @@ interface DocumentTypeInputProps {
   onChange: (type: DocumentType) => void
 }
 
-const DocumentTypeInput = ({
-  selected,
-  onChange
-}: DocumentTypeInputProps) => {
+const DocumentTypeInput = ({ selected, onChange }: DocumentTypeInputProps) => {
   const selectedType = selected === 'ID_CARD'
 
   const handleSelect = (type: DocumentType) => {
@@ -401,9 +335,7 @@ const DocumentTypeInput = ({
 
   return (
     <View style={stylesRadio.container}>
-      <Text style={stylesRadio.label}>
-        Tipo de Documento
-      </Text>
+      <Text style={stylesRadio.label}>Tipo de Documento</Text>
       <View style={stylesRadio.inputs}>
         <Pressable
           style={stylesRadio.input}
