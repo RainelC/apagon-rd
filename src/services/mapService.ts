@@ -6,9 +6,7 @@ enum Endpoint {
 }
 
 class MapService {
-  static async getSectorsGeoJson(
-    token: string
-  ): Promise<Sector[]> {
+  static async getSectorsGeoJson(token: string): Promise<Sector[]> {
     const response = await axiosInstance.get<Sector[]>(
       Endpoint.SECTORS_GEOJSON,
       {
@@ -18,10 +16,8 @@ class MapService {
       }
     )
 
-    return response.data.map((sector) => {
-      const geojson = JSON.parse(
-        sector.geojson as unknown as string
-      )
+    return response.data.map(sector => {
+      const geojson = JSON.parse(sector.geojson as unknown as string)
 
       geojson.coordinates = geojson.coordinates[0].map(
         ([lng, lat]: [number, number]) => {

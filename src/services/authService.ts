@@ -1,7 +1,7 @@
 import { AxiosError, AxiosResponse } from 'axios'
-import type { CreateUser } from '../types/createUser'
-import recoverPasswdProps from '../types/recover'
 import { axiosInstance } from '../api/apiClient'
+import type { CreateUser } from '../types/createUser'
+import type recoverPasswdProps from '../types/recover'
 
 enum Endpoint {
   REGISTER = 'users/register',
@@ -14,37 +14,49 @@ enum Endpoint {
 
 class AuthService {
   async register(user: CreateUser) {
-    const { statusText, data } = await axiosInstance.post(
-      Endpoint.REGISTER,
-      {
+    await axiosInstance
+      .post(Endpoint.REGISTER, {
         ...user
-      }
-    )
-
-    if (statusText !== 'OK')
-      throw new Error(
-        'Error al registrar el usuario',
-        data.message
-      )
-
-    return true
+      })
+      .catch(err => {
+        let message = 'Error al registrar el usuario'
+        if (err instanceof AxiosError) {
+          if (
+            err.response?.data.message.includes("Duplicate entry 'ID_CARD-")
+          ) {
+            message = 'La cédula ya está registrada'
+          } else {
+            message = err.response?.data.message
+          }
+        }
+        throw new Error(message)
+      })
   }
 
   async login(username: string, password: string) {
-    const { data, status } = await axiosInstance.post(
-      Endpoint.LOGIN,
-      {},
-      {
-        headers: {
-          Authorization:
-            'Basic ' + btoa(username + ':' + password)
+    const { data } = await axiosInstance
+      .post(
+        Endpoint.LOGIN,
+        {},
+        {
+          headers: {
+            Authorization: `Basic ${btoa(`${username}:${password}`)}`
+          }
         }
-      }
-    )
+      )
+      .catch(err => {
+        let message = 'Error al iniciar sesión'
+        if (err instanceof AxiosError) {
+          console.log(err.response?.data)
 
-    if (status !== 200) {
-      throw new Error('Error al iniciar sesion')
-    }
+          if (err.response?.status === 401) {
+            message = 'Credenciales inválidas'
+          } else {
+            message = err.response?.data.message
+          }
+        }
+        throw new Error(message)
+      })
 
     return data
   }
@@ -53,12 +65,9 @@ class AuthService {
     username: string
   ): Promise<AxiosResponse | AxiosError> {
     try {
-      return await axiosInstance.post(
-        Endpoint.SEND_RECUPERATION_EMAIL,
-        {
-          username: username
-        }
-      )
+      return await axiosInstance.post(Endpoint.SEND_RECUPERATION_EMAIL, {
+        username: username
+      })
     } catch (error: unknown) {
       return error as AxiosError
     }
@@ -69,10 +78,7 @@ class AuthService {
   ): Promise<AxiosResponse | AxiosError> {
     try {
       console.log(data)
-      return await axiosInstance.post(
-        Endpoint.RECOVER_PASSWORD,
-        data
-      )
+      return await axiosInstance.post(Endpoint.RECOVER_PASSWORD, data)
     } catch (error: unknown) {
       return error as AxiosError
     }
