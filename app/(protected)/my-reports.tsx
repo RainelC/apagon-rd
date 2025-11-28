@@ -1,4 +1,5 @@
-import { useContext, useEffect, useState } from 'react'
+import { useFocusEffect } from 'expo-router'
+import { useCallback, useContext, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
@@ -11,27 +12,28 @@ import {
 import ReportItem from '../../src/components/report'
 import { AuthContext } from '../../src/context/AuthContext'
 import { ReportService } from '../../src/services/reportService'
-import { Report } from '../../src/types/Report'
-import { getUserIdFromToken } from '../../src/utils/jwtDecoder'
+import { ReportModel } from '../../src/types/Report'
+import { decodeJWT, getUserIdFromToken } from '../../src/utils/jwtDecoder'
 
 type FilterType = 'ACTIVE' | 'RESOLVED'
 
 export default function MyReports() {
   const auth = useContext(AuthContext)
-  const [reports, setReports] = useState<Report[]>([])
+  const [reports, setReports] = useState<ReportModel[]>([])
   const [loading, setLoading] = useState(true)
   const [activeFilter, setActiveFilter] =
     useState<FilterType>('ACTIVE')
 
-  useEffect(() => {
-    if (auth?.token) {
-      loadReports()
-    }
-  }, [auth?.token, activeFilter])
+  useFocusEffect(
+    useCallback(() => {
+      if (auth?.token) {
+        loadReports()
+      }
+    }, [auth?.token, activeFilter])
+  )
 
   const loadReports = async () => {
     if (!auth?.token) return
-
     try {
       setLoading(true)
       const userId = getUserIdFromToken(auth.token)

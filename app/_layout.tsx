@@ -1,4 +1,4 @@
-import { Redirect, Tabs } from 'expo-router'
+import { Href, Redirect, Tabs } from 'expo-router'
 import {
   AuthProvider,
   AuthContext
@@ -15,21 +15,17 @@ function RootLayoutNav() {
   /// We have to test this fuctions with the apk
   async function getInitialDeepLink() {
     const url = await Linking.getLinkingURL()
-    console.log(url)
-    console.log(await Linking.getInitialURL())
     if (url) {
       console.log('App launched with URL:', url)
-      return <Redirect href={url} />
-    } else {
-      console.log('App not launched by a deep link.')
+      return <Redirect href={url as Href} />
     }
   }
 
   getInitialDeepLink()
 
   if (auth?.loading) return null
-  if (!auth?.token) return <Redirect href='/access/login' />
-  return <Redirect href='/(protected)' />
+  if (!auth?.token) return <Redirect href={'/access/login' as Href} />
+  return <Redirect href={'/(protected)' as Href} />
 }
 
 export default function RootLayout() {

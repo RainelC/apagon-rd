@@ -116,6 +116,20 @@ export default function ProtectedLayout() {
           }}
         />
       ))}
+      <Tabs.Screen
+        name='reportDetails'
+        options={{
+          href: null,
+          headerShown: false
+        }}
+      />
+      <Tabs.Screen
+        name='chatbot'
+        options={{
+          href: null,
+          headerShown: false
+        }}
+      />
     </Tabs>
   )
 }

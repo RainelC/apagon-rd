@@ -225,7 +225,25 @@ const mapHtml = (
         attribution: "© OpenStreetMap contributors",
       }).addTo(map);
 
-      var clickMarker;
+
+
+      ${sectors
+        .map((sector) => {
+          return `L.polygon(${JSON.stringify(
+            sector.geojson.coordinates
+          )}, {color: '${
+            sector.status === 'NO_POWER' ? 'red' : 'green'
+          }'}).addTo(map).bindPopup('${
+            sector.name
+          } - Estado: ${
+            sector.status === 'NO_POWER'
+              ? 'Sin Energía'
+              : 'Con Energía'
+          }');`
+        })
+        .join('\n')}
+
+              var clickMarker;
 
       L.circleMarker([${longitude}, ${latitude}], 
         {
@@ -245,22 +263,6 @@ const mapHtml = (
         fillOpacity: 0.1,
         weight: 9
       }).addTo(map);
-
-      ${sectors
-        .map((sector) => {
-          return `L.polygon(${JSON.stringify(
-            sector.geojson.coordinates
-          )}, {color: '${
-            sector.status === 'NO_POWER' ? 'red' : 'green'
-          }'}).addTo(map).bindPopup('${
-            sector.name
-          } - Estado: ${
-            sector.status === 'NO_POWER'
-              ? 'Sin Energía'
-              : 'Con Energía'
-          }');`
-        })
-        .join('\n')}
       
       map.on("click", function (e) {
         if (clickMarker) {

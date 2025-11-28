@@ -1,30 +1,33 @@
-import * as ImagePicker from 'expo-image-picker'
+import ReportMap from '@components/ReportMap'
+import { COLORS } from '@constants/colors'
+import { AuthContext } from '@context/AuthContext'
+import { Ionicons } from '@expo/vector-icons'
 import { useForm } from '@hooks/useForm'
+import { ReportService } from '@services/reportService'
+import * as ImagePicker from 'expo-image-picker'
+import * as Location from 'expo-location'
 import {
-  useLocalSearchParams,
   router,
-  useFocusEffect
+  useFocusEffect,
+  useLocalSearchParams
 } from 'expo-router'
-import {
-  View,
-  StyleSheet,
-  Text,
-  ScrollView,
-  Alert,
-  TouchableOpacity,
-  ActivityIndicator
-} from 'react-native'
-import { AddReport } from '../../src/types/Report'
 import {
   useCallback,
   useContext,
   useRef,
   useState
 } from 'react'
-import { Input } from '@components/Input'
-import { COLORS } from '@constants/colors'
-import { ReportService } from '@services/reportService'
-import { AuthContext } from '@context/AuthContext'
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native'
+import { AddReport } from '../../src/types/Report'
 
 export default function Report() {
   const auth = useContext(AuthContext)
@@ -35,27 +38,61 @@ export default function Report() {
   }>()
 
   const [loading, setLoading] = useState(false)
-
   const { form, setField, setFields, errors, resetForm } =
     useForm<AddReport>({
       latitude: lat || '',
       longitude: lng || '',
       sectorId: 1,
-      outageType: 'General Outage',
       description: '',
       status: 'RECEIVED',
+      powerStatus: 'POWER',
       imageUri: ''
     })
 
   const setFieldsRef = useRef(setFields)
   setFieldsRef.current = setFields
 
+  // Handle location from params or get current location
   useFocusEffect(
     useCallback(() => {
-      setFieldsRef.current({
-        latitude: lat ? (+lat).toFixed(5) : '',
-        longitude: lng ? (+lng).toFixed(5) : ''
-      })
+      async function handleLocation() {
+        if (lat && lng) {
+          // If we have lat/lng from params, use them
+          setFieldsRef.current({
+            latitude: (+lat).toFixed(5),
+            longitude: (+lng).toFixed(5)
+          })
+        } else {
+          // Otherwise, get current location
+          try {
+            let { status } =
+              await Location.requestForegroundPermissionsAsync()
+            if (status !== 'granted') {
+              Alert.alert(
+                'Error',
+                'Permiso para acceder a la ubicación denegado'
+              )
+              return
+            }
+
+            let location =
+              await Location.getCurrentPositionAsync({})
+            setFieldsRef.current({
+              latitude: location.coords.latitude.toFixed(5),
+              longitude:
+                location.coords.longitude.toFixed(5)
+            })
+          } catch (error) {
+            console.error('Error getting location:', error)
+            Alert.alert(
+              'Error',
+              'No se pudo obtener la ubicación actual'
+            )
+          }
+        }
+      }
+
+      handleLocation()
     }, [lat, lng])
   )
 
@@ -92,9 +129,11 @@ export default function Report() {
           }
         }
       ])
-    } catch (error) {
-      console.log(error)
-      Alert.alert('Error', 'No se pudo crear el reporte')
+    } catch (error: any) {
+      if(error?.response?.status === 400 ) {
+        console.log(error)
+        Alert.alert('Error', error.response.data.message)
+      }
     } finally {
       setLoading(false)
     }
@@ -116,49 +155,66 @@ export default function Report() {
     <ScrollView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Ubicación</Text>
-          <View style={styles.coordinatesContainer}>
-            <View style={styles.coordinateInput}>
-              <Input
-                label='Latitud'
-                placeholder='Ej: 18.4861'
-                value={form.latitude}
-                onChangeText={(text) =>
-                  setField('latitude', text)
-                }
-                keyboardType='decimal-pad'
-                error={errors.latitude}
-              />
-            </View>
-            <View style={styles.coordinateInput}>
-              <Input
-                label='Longitud'
-                placeholder='Ej: -69.9312'
-                value={form.longitude}
-                onChangeText={(text) =>
-                  setField('longitude', text)
-                }
-                keyboardType='decimal-pad'
-                error={errors.longitude}
-              />
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.formGroup}>
-          <Input
-            label='Descripción'
-            placeholder='Describe la situación del apagón'
+          <Text style={styles.label}>Descripción</Text>
+          <TextInput
+            style={styles.textarea}
+            placeholder='Describe la avería detalladamente...'
+            placeholderTextColor={COLORS.gray}
             value={form.description}
             onChangeText={(text) =>
               setField('description', text)
             }
             multiline
             numberOfLines={4}
-            error={errors.description}
           />
         </View>
-
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>
+            Estado de la energía
+          </Text>
+          <View style={styles.selectContainer}>
+            <TouchableOpacity
+              style={[
+                styles.selectOption,
+                form.powerStatus === 'POWER' &&
+                  styles.selectOptionActive
+              ]}
+              onPress={() =>
+                setField('powerStatus', 'POWER')
+              }
+            >
+              <Text
+                style={[
+                  styles.selectOptionText,
+                  form.powerStatus === 'POWER' &&
+                    styles.selectOptionTextActive
+                ]}
+              >
+                Con luz
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.selectOption,
+                form.powerStatus === 'NO_POWER' &&
+                  styles.selectOptionActive
+              ]}
+              onPress={() =>
+                setField('powerStatus', 'NO_POWER')
+              }
+            >
+              <Text
+                style={[
+                  styles.selectOptionText,
+                  form.powerStatus === 'NO_POWER' &&
+                    styles.selectOptionTextActive
+                ]}
+              >
+                Sin luz
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
         <TouchableOpacity
           onPress={pickImage}
           style={[
@@ -169,20 +225,22 @@ export default function Report() {
             }
           ]}
         >
-          <Text>Seleccionar imagen o video (opcional)</Text>
+          <Ionicons
+            name='image-outline'
+            size={24}
+            color='black'
+          />
+          <Text>Adjuntar fotos o video (opcional)</Text>
         </TouchableOpacity>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={() => router.back()}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.cancelButtonText}>
-              Cancelar
-            </Text>
-          </TouchableOpacity>
+        <View>
+          <ReportMap
+            latitude={form.latitude}
+            longitude={form.longitude}
+          />
+        </View>
 
+        <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[
               styles.submitButton,
@@ -210,11 +268,18 @@ const styles = StyleSheet.create({
   content: {
     padding: 20
   },
+  textarea: {
+    minHeight: 150,
+    backgroundColor: '#f0f0f0',
+    padding: 15,
+    borderRadius: 5,
+    fontSize: 16
+  },
   formGroup: {},
   label: {
+    marginVertical: 15,
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 8,
     color: '#333'
   },
   coordinatesContainer: {
@@ -223,6 +288,32 @@ const styles = StyleSheet.create({
   },
   coordinateInput: {
     flex: 1
+  },
+  selectContainer: {
+    flexDirection: 'row',
+    gap: 10
+  },
+  selectOption: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+    padding: 15,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#ddd',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  selectOptionActive: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF'
+  },
+  selectOptionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333'
+  },
+  selectOptionTextActive: {
+    color: '#fff'
   },
   imagePicker: {
     backgroundColor: '#f0f0f0',
@@ -233,29 +324,16 @@ const styles = StyleSheet.create({
     marginTop: 15,
     borderStyle: 'dashed',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 10
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
     gap: 10
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd'
-  },
-  cancelButtonText: {
-    color: '#666',
-    fontSize: 16,
-    fontWeight: '600'
   },
   submitButton: {
     flex: 1,

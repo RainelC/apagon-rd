@@ -1,8 +1,14 @@
-import { StyleSheet, Text, View } from 'react-native'
-import { Report } from '../types/Report'
+import { useRouter } from 'expo-router'
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native'
+import { ReportModel } from '../types/Report'
 
 interface ReportItemProps {
-  report: Report
+  report: ReportModel
 }
 
 const getStatusColor = (status: string): string => {
@@ -56,12 +62,24 @@ const formatDate = (dateString: string): string => {
 export default function ReportItem({
   report
 }: ReportItemProps) {
+  const router = useRouter()
   const statusColor = getStatusColor(report.status)
   const statusText = getStatusText(report.status)
   const formattedDate = formatDate(report.createdAt)
 
+  const handlePress = () => {
+    router.push({
+      pathname: '/(protected)/reportDetails',
+      params: { reportDetail: JSON.stringify(report) }
+    })
+  }
+
   return (
-    <View style={styles.container}>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={handlePress}
+      activeOpacity={0.7}
+    >
       <View>
         <Text style={styles.title}>
           {report.description}
@@ -84,7 +102,7 @@ export default function ReportItem({
           {statusText}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 

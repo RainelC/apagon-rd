@@ -1,21 +1,20 @@
 import { Input } from '@components/Input'
+import { COLORS } from '@constants/colors'
 import { useForm } from '@hooks/useForm'
-import { Link } from 'expo-router'
-import { useState, useContext } from 'react'
-import { router } from 'expo-router'
-import { AuthContext } from '../../src/context/AuthContext'
+import { AuthService } from '@services/authService'
+import { AxiosError } from 'axios'
+import { Href, Link, router } from 'expo-router'
+import { useContext, useState } from 'react'
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
+  Alert,
   KeyboardAvoidingView,
   Platform,
-  Alert
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native'
-import { AuthService } from '@services/authService'
-import { COLORS } from '@constants/colors'
-import { AxiosError } from 'axios'
+import { AuthContext } from '../../src/context/AuthContext'
 
 const authService = new AuthService()
 
@@ -32,20 +31,30 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     try {
       setIsLoading(true)
-
       const response = await authService.login(
         form.username,
         form.password
       )
       await signIn(response.token)
 
-      router.replace('/(protected)')
+      router.replace('/(protected)' as Href)
     } catch (error) {
-      if (error instanceof AxiosError)
-        Alert.alert(
-          error.message || 'Error al iniciar sesion'
-        )
-      console.log(error)
+      let errorMessage = 'Error al iniciar sesión'
+      
+      if (error instanceof AxiosError) {
+        if (error.code === 'ECONNABORTED') {
+          errorMessage = 'La solicitud tardó demasiado. Verifica tu conexión.'
+        } else if (error.response) {
+          errorMessage = error.response.data?.message || `Error del servidor (${error.response.status})`
+        } else if (error.request) {
+          errorMessage = 'No se pudo conectar al servidor. Verifica tu conexión.'
+        } else {
+          errorMessage = error.message || 'Error al iniciar sesión'
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      Alert.alert('Error', errorMessage)
     } finally {
       setIsLoading(false)
       setField('password', '')
@@ -120,7 +129,7 @@ export default function LoginScreen() {
             }}
           />
           <Link
-            href={'/access/forgot-passwd'}
+            href={'/access/forgot-passwd' as Href}
             style={styles.forgetPasswd}
           >
             ¿Olvidaste tu contraseña?
@@ -146,7 +155,7 @@ export default function LoginScreen() {
             No tienes una cuenta?{' '}
           </Text>
           <Link
-            href='/access/register'
+            href={'/access/register' as Href}
             replace
           >
             <Text style={styles.signupLink}>

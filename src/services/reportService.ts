@@ -1,10 +1,11 @@
 import { axiosInstance } from '../api/apiClient'
-import { AddReport, Report } from '../types/Report'
+import { AddReport, ReportModel } from '../types/Report'
 
 enum Endpoint {
   UPLOAD_IMAGE = 'files/upload',
   CREATE = 'reports',
-  GET_ALL = 'reports'
+  GET_ALL = 'reports',
+  GET_BY_ID = 'reports'
 }
 
 class ReportService {
@@ -44,7 +45,7 @@ class ReportService {
   static async getAllReports(
     userId: number,
     status?: string
-  ): Promise<Report[]> {
+  ): Promise<ReportModel[]> {
     const params: any = { userId }
     if (status) {
       params.status = status
@@ -59,6 +60,19 @@ class ReportService {
     if (response.status !== 200)
       throw new Error('Error fetching reports')
     return response.data.content
+  }
+
+  static async getReportById(
+    reportId: string,
+    token: string
+  ): Promise<ReportModel> {
+    const response = await axiosInstance.get(
+      `${Endpoint.GET_BY_ID}/${reportId}`
+    )
+
+    if (response.status !== 200)
+      throw new Error('Error fetching report')
+    return response.data
   }
 }
 

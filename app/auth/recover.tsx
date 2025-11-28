@@ -14,7 +14,7 @@ import {
 import { AuthService } from '@services/authService'
 import { COLORS } from '@constants/colors'
 import { GoBackButton } from '@components/GoBackButton'
-import { Redirect, useLocalSearchParams } from 'expo-router'
+import { Href, Redirect, useLocalSearchParams } from 'expo-router'
 
 const authService = new AuthService()
 
@@ -38,7 +38,7 @@ function RecoverScreen() {
         '¡Contraseña cambiada correctamente!',
         'Ya puedes iniciar sesión con tu nueva contraseña.'
       )
-      return <Redirect href={'access/forgot-passwd'} />
+      return <Redirect href={'access/forgot-passwd' as Href} />
     }
 
     if (response.status === 403) {
