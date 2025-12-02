@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 10,
     right: 20,
     backgroundColor: COLORS.primary,
     flexDirection: 'row',

@@ -1,7 +1,6 @@
 import ReportMap from '@components/ReportMap'
 import { AuthContext } from '@context/AuthContext'
-import { Ionicons } from '@expo/vector-icons'
-import { router, useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams } from 'expo-router'
 import { useContext, useEffect, useState } from 'react'
 import {
   ActivityIndicator,
@@ -10,11 +9,11 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ReportModel } from '../../src/types/Report'
+import { GoBackButton } from '@components/GoBackButton'
 
 export default function ReportDetails() {
   const { reportDetail: reportDetailParam } =
@@ -66,16 +65,7 @@ export default function ReportDetails() {
     >
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons
-            name='chevron-back'
-            size={24}
-            color='#333'
-          />
-        </TouchableOpacity>
+        <GoBackButton />
         <Text style={styles.headerTitle}>
           Reporte #{reportDetail.id}
         </Text>
@@ -145,6 +135,7 @@ export default function ReportDetails() {
           <ReportMap
             latitude={reportDetail.latitude.toString()}
             longitude={reportDetail.longitude.toString()}
+            touchControl={true}
           />
         </View>
       </ScrollView>

@@ -15,7 +15,7 @@ import { ReportService } from '../../src/services/reportService'
 import { ReportModel } from '../../src/types/Report'
 import { decodeJWT, getUserIdFromToken } from '../../src/utils/jwtDecoder'
 
-type FilterType = 'ACTIVE' | 'RESOLVED'
+type FilterType = 'ACTIVE' | 'RESOLVER'
 
 export default function MyReports() {
   const auth = useContext(AuthContext)
@@ -50,8 +50,8 @@ export default function MyReports() {
       let status: string | undefined
       if (activeFilter === 'ACTIVE') {
         status = '' // Fetch all
-      } else if (activeFilter === 'RESOLVED') {
-        status = 'RESOLVED'
+      } else if (activeFilter === 'RESOLVER') {
+        status = 'RESOLVER'
       }
 
       const fetchedReports =
@@ -60,7 +60,7 @@ export default function MyReports() {
       // Filter for active reports if needed
       if (activeFilter === 'ACTIVE') {
         const activeReports = fetchedReports.filter(
-          (r) => r.status.toUpperCase() !== 'RESOLVED'
+          (r) => r.status.toUpperCase() !== 'RESOLVER'
         )
         setReports(activeReports)
       } else {
@@ -111,15 +111,15 @@ export default function MyReports() {
         <TouchableOpacity
           style={[
             styles.filterTab,
-            activeFilter === 'RESOLVED' &&
+            activeFilter === 'RESOLVER' &&
               styles.filterTabActive
           ]}
-          onPress={() => setActiveFilter('RESOLVED')}
+          onPress={() => setActiveFilter('RESOLVER')}
         >
           <Text
             style={[
               styles.filterText,
-              activeFilter === 'RESOLVED' &&
+              activeFilter === 'RESOLVER' &&
                 styles.filterTextActive
             ]}
           >

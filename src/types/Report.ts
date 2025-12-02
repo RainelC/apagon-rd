@@ -7,7 +7,7 @@ interface AddReport {
   sectorId: 1
   description: string
   powerStatus: 'NO_POWER' | 'POWER'
-  status: 'RECEIVED' | 'IN_PROGRESS' | 'RESOLVED'
+  status: 'RECEIVED' | 'IN_PROGRESS' | 'RESOLVER'
   imageUri: string
 }
 

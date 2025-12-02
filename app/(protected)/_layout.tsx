@@ -33,7 +33,7 @@ const TABS_CONFIG = [
   },
   {
     name: 'report',
-    headerTitle: 'Reportar Apagón',
+    headerTitle: 'Reportar Avería',
     title: 'Reportar',
     icon: (props: TabIconProps) => (
       <Octicons

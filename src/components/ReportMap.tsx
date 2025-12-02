@@ -4,18 +4,20 @@ import { WebView } from 'react-native-webview'
 interface ReportMapProps {
   latitude: string
   longitude: string
+  touchControl: boolean
 }
 
 const ReportMap = ({
   latitude,
-  longitude
+  longitude,
+  touchControl
 }: ReportMapProps) => {
   return (
     <View style={styles.container}>
       <WebView
         originWhitelist={['*']}
         source={{
-          html: mapHtml(latitude, longitude)
+          html: mapHtml(latitude, longitude, touchControl)
         }}
         scrollEnabled={false}
         style={styles.webview}
@@ -39,7 +41,11 @@ const styles = StyleSheet.create({
   }
 })
 
-const mapHtml = (latitude: string, longitude: string) => `
+const mapHtml = (
+  latitude: string,
+  longitude: string,
+  touchControl: boolean
+) => `
 <!DOCTYPE html>
 <html>
   <head>
@@ -68,11 +74,11 @@ const mapHtml = (latitude: string, longitude: string) => `
     <script>
       var map = L.map("map", {
         zoomControl: false,
-        dragging: false,
+        dragging: ${touchControl},
         scrollWheelZoom: false,
         doubleClickZoom: false,
         boxZoom: false,
-        touchZoom: false
+        touchZoom: ${touchControl}
       }).setView([${latitude}, ${longitude}], 15);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {

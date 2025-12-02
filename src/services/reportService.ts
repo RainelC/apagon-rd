@@ -20,11 +20,16 @@ class ReportService {
         uri: report.imageUri,
         type: 'image/*',
         name: 'report-image.jpg'
-      })
+      } as any)
 
       const imageResponse = await axiosInstance.post(
         'files/upload',
-        formData
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
       )
       if (imageResponse.status !== 200)
         throw new Error('Error uploading image')

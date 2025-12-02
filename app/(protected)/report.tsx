@@ -155,7 +155,7 @@ export default function Report() {
     <ScrollView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Descripción</Text>
+          <Text style={[styles.label, styles.zeroMarginTop]}>Descripción</Text>
           <TextInput
             style={styles.textarea}
             placeholder='Describe la avería detalladamente...'
@@ -237,6 +237,7 @@ export default function Report() {
           <ReportMap
             latitude={form.latitude}
             longitude={form.longitude}
+            touchControl={false}
           />
         </View>
 
@@ -276,6 +277,9 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   formGroup: {},
+  zeroMarginTop: {
+    marginTop: 0
+  },
   label: {
     marginVertical: 15,
     fontSize: 16,
@@ -332,7 +336,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
     gap: 10
   },
   submitButton: {
