@@ -20,7 +20,7 @@ export default function ReluxChatbot() {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputText, setInputText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const scrollViewRef = useRef(null)
+  const scrollViewRef = useRef<ScrollView>(null)
 
   const scrollToBottom = () => {
     scrollViewRef.current?.scrollToEnd({ animated: true })
@@ -31,12 +31,8 @@ export default function ReluxChatbot() {
   }, [messages])
 
   const callBotAPI = async (userMessage: string) => {
-    try {
       const response = await BotService.chat({reply: userMessage, messages: messages})
       setMessages(response.messages)
-    } catch (error) {
-      return 'Lo siento, estoy teniendo problemas de conexión. Por favor intenta de nuevo.'
-    }
   }
 
   const handleSend = async () => {
@@ -113,8 +109,9 @@ export default function ReluxChatbot() {
         contentContainerStyle={styles.messagesContent}
         onContentSizeChange={scrollToBottom}
       >
-        {messages.map((message) => (
+        {messages.map((message, i) => (
           <View
+            key={message.role + i}
             style={[
               styles.messageWrapper,
               message.role === 'user'
