@@ -76,17 +76,6 @@ export default function MyReports() {
       setLoading(false)
     }
   }
-
-  if (!auth || !auth.token) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator
-          size='large'
-          color='#007AFF'
-        />
-      </View>
-    )
-  }
   return (
     <View style={styles.container}>
       <View style={styles.filterContainer}>

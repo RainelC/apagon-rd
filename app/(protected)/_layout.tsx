@@ -130,6 +130,13 @@ export default function ProtectedLayout() {
           headerShown: false
         }}
       />
+      <Tabs.Screen
+        name='sectorStats'
+        options={{
+          href: null,
+          headerShown: false
+        }}
+      />
     </Tabs>
   )
 }

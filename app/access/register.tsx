@@ -1,6 +1,6 @@
 import { Input } from '@components/Input'
 import { useForm } from '@hooks/useForm'
-import { Link, router } from 'expo-router'
+import { Href, Link, router } from 'expo-router'
 import {
   Alert,
   KeyboardAvoidingView,
@@ -16,23 +16,31 @@ import {
 import { RadioButton } from '@components/RadioInput'
 import { COLORS } from '@constants/colors'
 import { AuthService } from '@services/authService'
-import { useState } from 'react'
+import { Check } from 'lucide-react-native'
+import { useMemo, useState } from 'react'
 import type { CreateUser } from '../../src/types/createUser'
 import type { DocumentType } from '../../src/types/documentType'
 
 const authService = new AuthService()
 
 export default function Register() {
-  const { form, setField, resetForm, setFields, errors, setError, clearError } =
-    useForm<CreateUser>({
-      firstname: '',
-      lastname: '',
-      username: '',
-      password: '',
-      email: '',
-      documentType: 'ID_CARD',
-      documentNumber: ''
-    })
+  const {
+    form,
+    setField,
+    resetForm,
+    setFields,
+    errors,
+    setError,
+    clearError
+  } = useForm<CreateUser>({
+    firstname: '',
+    lastname: '',
+    username: '',
+    password: '',
+    email: '',
+    documentType: 'ID_CARD',
+    documentNumber: ''
+  })
   const [loading, setLoading] = useState(false)
 
   const documentTypeChange = (type: DocumentType) => {
@@ -48,7 +56,10 @@ export default function Register() {
       await authService.register(form)
       resetForm()
       router.replace('/access/login')
-      Alert.alert('Registro Exitoso', 'Bienvenido! Su cuenta ha sido creada.')
+      Alert.alert(
+        'Registro Exitoso',
+        'Bienvenido! Su cuenta ha sido creada.'
+      )
     } catch (error) {
       if (error instanceof Error)
         Alert.alert('Error al registrarse', error.message)
@@ -58,8 +69,12 @@ export default function Register() {
   }
 
   const isValidForm = (): boolean => {
-    if (Object.values(form).some(value => value === '')) return false
-    if (Object.values(errors).some(value => Boolean(value))) return false
+    if (Object.values(form).some((value) => value === ''))
+      return false
+    if (
+      Object.values(errors).some((value) => Boolean(value))
+    )
+      return false
 
     return true
   }
@@ -78,19 +93,26 @@ export default function Register() {
     if (part2) formattedDocumentNumber += `-${part2}`
     if (part3) formattedDocumentNumber += `-${part3}`
   } else {
-    formattedDocumentNumber = `RD${digitsOnly.slice(0, 7)}`.toUpperCase()
+    formattedDocumentNumber = `RD${digitsOnly.slice(
+      0,
+      7
+    )}`.toUpperCase()
   }
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={
+        Platform.OS === 'ios' ? 'padding' : 'height'
+      }
       style={styles.container}
     >
       <ScrollView>
         <View style={styles.screen}>
           <View style={styles.header}>
             <Text style={styles.title}>Registrate</Text>
-            <Text style={styles.subtle}>Crea una cuenta para continuar.</Text>
+            <Text style={styles.subtle}>
+              Crea una cuenta para continuar.
+            </Text>
           </View>
           <View style={styles.inputsContainer}>
             <View style={styles.inputGroup}>
@@ -98,12 +120,17 @@ export default function Register() {
                 <Input
                   value={form.firstname}
                   error={errors.firstname}
-                  onChangeText={text => setField('firstname', text)}
+                  onChangeText={(text) =>
+                    setField('firstname', text)
+                  }
                   label='Nombre'
                   placeholder='Ingrese su nombre'
                   onEndEditing={() => {
                     if (!form.firstname)
-                      return setError('firstname', 'El nombre es obligatorio')
+                      return setError(
+                        'firstname',
+                        'El nombre es obligatorio'
+                      )
 
                     clearError('firstname')
                   }}
@@ -113,12 +140,17 @@ export default function Register() {
                 <Input
                   value={form.lastname}
                   error={errors.lastname}
-                  onChangeText={text => setField('lastname', text)}
+                  onChangeText={(text) =>
+                    setField('lastname', text)
+                  }
                   label='Apellido'
                   placeholder='Ingrese su apellido'
                   onEndEditing={() => {
                     if (!form.lastname)
-                      return setError('lastname', 'El apellido es obligatorio')
+                      return setError(
+                        'lastname',
+                        'El apellido es obligatorio'
+                      )
                     clearError('lastname')
                   }}
                 />
@@ -127,7 +159,9 @@ export default function Register() {
             <Input
               value={form.username}
               error={errors.username}
-              onChangeText={text => setField('username', text)}
+              onChangeText={(text) =>
+                setField('username', text)
+              }
               label='Nombre de Usuario'
               placeholder='Ingrese su nombre de usuario'
               autoCapitalize='none'
@@ -148,7 +182,9 @@ export default function Register() {
             <Input
               value={form.email}
               error={errors.email}
-              onChangeText={text => setField('email', text)}
+              onChangeText={(text) =>
+                setField('email', text)
+              }
               label='Correo Electrónico'
               placeholder='Ingrese su correo electrónico'
               keyboardType='email-address'
@@ -159,43 +195,59 @@ export default function Register() {
                     'email',
                     'El correo electrónico es obligatorio'
                   )
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                const emailRegex =
+                  /^[^\s@]+@[^\s@]+\.[^\s@]+$/
                 if (!emailRegex.test(form.email))
-                  return setError('email', 'El correo electrónico no es válido')
+                  return setError(
+                    'email',
+                    'El correo electrónico no es válido'
+                  )
                 clearError('email')
               }}
             />
-            <Input
-              value={form.password}
-              error={errors.password}
-              onChangeText={text => setField('password', text)}
-              label='Contraseña'
-              placeholder='Ingrese su contraseña'
-              secureTextEntry={true}
-              onEndEditing={() => {
-                if (form.password.length < 8)
-                  return setError(
-                    'password',
-                    'La contraseña debe tener al menos 8 caracteres'
-                  )
-                if (!/[A-Z]/.test(form.password))
-                  return setError(
-                    'password',
-                    'La contraseña debe tener al menos una letra mayúscula'
-                  )
-                if (!/[0-9]/.test(form.password))
-                  return setError(
-                    'password',
-                    'La contraseña debe tener al menos un número'
-                  )
-                if (!/[^A-Za-z0-9]/.test(form.password))
-                  return setError(
-                    'password',
-                    'La contraseña debe tener al menos un caracter especial'
-                  )
-                clearError('password')
-              }}
-            />
+            <View>
+              <Input
+                value={form.password}
+                error={errors.password}
+                onChangeText={(text) =>
+                  setField('password', text)
+                }
+                label='Contraseña'
+                placeholder='Ingrese su contraseña'
+                secureTextEntry={true}
+                onEndEditing={() => {
+                  if (form.password.length < 8)
+                    return setError(
+                      'password',
+                      'La contraseña debe tener al menos 8 caracteres'
+                    )
+                  if (!/[A-Z]/.test(form.password))
+                    return setError(
+                      'password',
+                      'La contraseña debe tener al menos una letra mayúscula'
+                    )
+                  if (!/[a-z]/.test(form.password))
+                    return setError(
+                      'password',
+                      'La contraseña debe tener al menos una letra minúscula'
+                    )
+                  if (!/[0-9]/.test(form.password))
+                    return setError(
+                      'password',
+                      'La contraseña debe tener al menos un número'
+                    )
+                  if (!/[^A-Za-z0-9]/.test(form.password))
+                    return setError(
+                      'password',
+                      'La contraseña debe tener al menos un caracter especial'
+                    )
+                  clearError('password')
+                }}
+              />
+              <PasswordRequirements
+                password={form.password}
+              />
+            </View>
             <DocumentTypeInput
               selected={form.documentType}
               onChange={documentTypeChange}
@@ -203,24 +255,35 @@ export default function Register() {
             <Input
               value={formattedDocumentNumber}
               error={errors.documentNumber}
-              onChangeText={text => setField('documentNumber', text)}
+              onChangeText={(text) =>
+                setField('documentNumber', text)
+              }
               label='Número de Documento'
               placeholder='Ingrese su número de cédula'
               keyboardType='number-pad'
-              maxLength={form.documentType === 'ID_CARD' ? 13 : 9}
+              maxLength={
+                form.documentType === 'ID_CARD' ? 13 : 9
+              }
               onEndEditing={() => {
-                const digitsOnly = form.documentNumber.replace(/\D/g, '')
+                const digitsOnly =
+                  form.documentNumber.replace(/\D/g, '')
                 if (!digitsOnly)
                   return setError(
                     'documentNumber',
                     'El número de documento es obligatorio'
                   )
-                if (form.documentType === 'ID_CARD' && digitsOnly.length !== 11)
+                if (
+                  form.documentType === 'ID_CARD' &&
+                  digitsOnly.length !== 11
+                )
                   return setError(
                     'documentNumber',
                     'El número de cédula debe tener 11 dígitos'
                   )
-                if (form.documentType === 'PASSPORT' && digitsOnly.length !== 7)
+                if (
+                  form.documentType === 'PASSPORT' &&
+                  digitsOnly.length !== 7
+                )
                   return setError(
                     'documentNumber',
                     'El número de pasaporte debe tener 7 dígitos'
@@ -245,12 +308,16 @@ export default function Register() {
             </TouchableOpacity>
           </View>
           <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Ya tienes una cuenta? </Text>
+            <Text style={styles.loginText}>
+              Ya tienes una cuenta?{' '}
+            </Text>
             <Link
-              href='/access/login'
+              href={'/access/login' as Href}
               replace
             >
-              <Text style={styles.loginLink}>Inicia sesion.</Text>
+              <Text style={styles.loginLink}>
+                Inicia sesion.
+              </Text>
             </Link>
           </View>
         </View>
@@ -308,7 +375,8 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     flexDirection: 'row',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginBottom: 60
   },
   loginText: {
     fontSize: 14,
@@ -321,12 +389,141 @@ const styles = StyleSheet.create({
   }
 })
 
+interface PasswordRequirementsProps {
+  password: string
+}
+
+const PasswordRequirements = ({
+  password
+}: PasswordRequirementsProps) => {
+  const requirements = useMemo(() => {
+    return {
+      minLength: password.length >= 8,
+      hasNumberAndSymbol:
+        /[0-9]/.test(password) &&
+        /[^A-Za-z0-9]/.test(password),
+      hasUpperAndLower:
+        /[A-Z]/.test(password) && /[a-z]/.test(password),
+      isStrong:
+        password.length >= 8 &&
+        /[0-9]/.test(password) &&
+        /[^A-Za-z0-9]/.test(password) &&
+        /[A-Z]/.test(password) &&
+        /[a-z]/.test(password)
+    }
+  }, [password])
+
+  return (
+    <View style={stylesPassword.container}>
+      <RequirementItem
+        text='Debe tener al menos 8 caracteres.'
+        met={requirements.minLength}
+      />
+      <RequirementItem
+        text='Debe contener un número y un símbolo (e.g. !@#).'
+        met={requirements.hasNumberAndSymbol}
+      />
+      <RequirementItem
+        text='Debe contener una letra mayúscula y una letra minúscula.'
+        met={requirements.hasUpperAndLower}
+      />
+      <RequirementItem
+        text='Introduce una contraseña fuerte usando cuatro palabras comunes al azar o una combinación de caracteres, mayúsculas y números o símbolos. la contraseña no se guardará hasta que veas un cuadro verde.'
+        met={requirements.isStrong}
+        isLongText
+      />
+    </View>
+  )
+}
+
+interface RequirementItemProps {
+  text: string
+  met: boolean
+  isLongText?: boolean
+}
+
+const RequirementItem = ({
+  text,
+  met,
+  isLongText
+}: RequirementItemProps) => {
+  return (
+    <View style={stylesPassword.requirementRow}>
+      <View
+        style={[
+          stylesPassword.checkbox,
+          met && stylesPassword.checkboxMet
+        ]}
+      >
+        {met && (
+          <Check
+            size={14}
+            color='#FFFFFF'
+            strokeWidth={3}
+          />
+        )}
+      </View>
+      <Text
+        style={[
+          stylesPassword.requirementText,
+          met && stylesPassword.requirementTextMet,
+          isLongText && stylesPassword.requirementTextLong
+        ]}
+      >
+        {text}
+      </Text>
+    </View>
+  )
+}
+
+const stylesPassword = StyleSheet.create({
+  container: {
+    marginTop: 8,
+    gap: 8
+  },
+  requirementRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8
+  },
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2
+  },
+  checkboxMet: {
+    backgroundColor: '#10B981',
+    borderColor: '#10B981'
+  },
+  requirementText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#000000',
+    lineHeight: 20
+  },
+  requirementTextMet: {
+    color: '#10B981'
+  },
+  requirementTextLong: {
+    fontSize: 13
+  }
+})
+
 interface DocumentTypeInputProps {
   selected: DocumentType
   onChange: (type: DocumentType) => void
 }
 
-const DocumentTypeInput = ({ selected, onChange }: DocumentTypeInputProps) => {
+const DocumentTypeInput = ({
+  selected,
+  onChange
+}: DocumentTypeInputProps) => {
   const selectedType = selected === 'ID_CARD'
 
   const handleSelect = (type: DocumentType) => {
@@ -335,7 +532,9 @@ const DocumentTypeInput = ({ selected, onChange }: DocumentTypeInputProps) => {
 
   return (
     <View style={stylesRadio.container}>
-      <Text style={stylesRadio.label}>Tipo de Documento</Text>
+      <Text style={stylesRadio.label}>
+        Tipo de Documento
+      </Text>
       <View style={stylesRadio.inputs}>
         <Pressable
           style={stylesRadio.input}

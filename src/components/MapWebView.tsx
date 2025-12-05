@@ -70,7 +70,7 @@ const MapWebView = () => {
           Alert.alert('Permiso de ubicación denegado')
         }
       }
-     let location = await Location.getCurrentPositionAsync(
+      let location = await Location.getCurrentPositionAsync(
         {}
       )
       setLocation(location)
@@ -116,6 +116,15 @@ const MapWebView = () => {
           params: {
             lat: data.coords.lat.toString(),
             lng: data.coords.lng.toString()
+          }
+        })
+      }
+      if (data.type === 'SECTOR_STATS_CLICK') {
+        router.navigate({
+          pathname: '/(protected)/sectorStats',
+          params: {
+            sectorId: data.sectorId.toString(),
+            sectorName: data.sectorName
           }
         })
       }
@@ -249,6 +258,31 @@ const mapHtml = (
       .leaflet-control-attribution {
         display: none;
       }
+      .sector-popup {
+        min-width: 100px;
+        max-width: 200px;
+      }
+      .sector-popup-title {
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+      }
+      .sector-popup-button {
+        background-color: transparent;
+        color: white;
+        border: 2px solid white;
+        border-radius: 24px;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 6px 0;
+        width: 100%;
+        text-align: center;
+      }
+      .sector-popup-button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
     </style>
   </head>
   <body>
@@ -263,17 +297,38 @@ const mapHtml = (
       
       ${sectors
         .map((sector) => {
-          return `L.polygon(${JSON.stringify(
-            sector.geojson.coordinates
-          )}, {color: '${
+          return `(function() {
+            var polygon = L.polygon(${JSON.stringify(
+              sector.geojson.coordinates
+            )}, {color: '${
             sector.status === 'NO_POWER' ? 'red' : 'green'
-          }'}).addTo(map).bindPopup('${
-            sector.name
-          } - Estado: ${
-            sector.status === 'NO_POWER'
-              ? 'Sin Energía'
-              : 'Con Energía'
-          }');`
+          }'}).addTo(map);
+            
+            polygon.on('click', function(e) {
+            if (clickMarker) {
+              map.removeLayer(clickMarker);
+            }
+              
+              var clickLat = e.latlng.lat;
+              var clickLng = e.latlng.lng;
+              
+              var popupContent = 
+                '<div class="sector-popup">' +
+                '<div class="sector-popup-title">${
+                  sector.name
+                }</div>' +
+                '<button class="sector-popup-button" onclick="reportLocation(' + clickLat + ',' + clickLng + ')">Reportar avería</button>' +
+                '<button class="sector-popup-button" onclick="showSectorStats(${
+                  sector.id
+                }, \\'${sector.name.replace(
+            /'/g,
+            "\\\\'"
+          )}\\')">Estadísticas</button>' +
+                '</div>';
+              
+              polygon.bindPopup(popupContent).openPopup(e.latlng);
+            });
+          })();`
         })
         .join('\n')}
 
@@ -316,6 +371,16 @@ const mapHtml = (
           JSON.stringify({
             type: "REPORT_CLICK",
             coords: { lat: lat, lng: lng }
+          })
+        );
+      };
+
+      window.showSectorStats = function(sectorId, sectorName) {
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({
+            type: "SECTOR_STATS_CLICK",
+            sectorId: sectorId,
+            sectorName: sectorName
           })
         );
       };

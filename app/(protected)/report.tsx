@@ -119,7 +119,7 @@ export default function Report() {
 
     try {
       setLoading(true)
-      await ReportService.createReport(token, form)
+      await ReportService.createReport(form)
       Alert.alert('Éxito', 'Reporte creado exitosamente', [
         {
           text: 'OK',
@@ -130,10 +130,7 @@ export default function Report() {
         }
       ])
     } catch (error: any) {
-      if(error?.response?.status === 400 ) {
-        console.log(error)
-        Alert.alert('Error', error.response.data.message)
-      }
+      Alert.alert('Error', error.response.data.message)
     } finally {
       setLoading(false)
     }

@@ -1,3 +1,4 @@
+import { CurvedHeader } from '@components/CurvedHeader'
 import { Input } from '@components/Input'
 import { COLORS } from '@constants/colors'
 import { useForm } from '@hooks/useForm'
@@ -14,15 +15,17 @@ import {
   TouchableOpacity,
   View
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { AuthContext } from '../../src/context/AuthContext'
 
 const authService = new AuthService()
 
 export default function LoginScreen() {
-  const { form, setField, errors, setError, clearError } = useForm({
-    username: '',
-    password: ''
-  })
+  const { form, setField, errors, setError, clearError } =
+    useForm({
+      username: '',
+      password: ''
+    })
 
   const { signIn } = useContext(AuthContext)!
   const [isLoading, setIsLoading] = useState(false)
@@ -39,16 +42,21 @@ export default function LoginScreen() {
       router.replace('/(protected)' as Href)
     } catch (error) {
       let errorMessage = 'Error al iniciar sesión'
-      
+
       if (error instanceof AxiosError) {
         if (error.code === 'ECONNABORTED') {
-          errorMessage = 'La solicitud tardó demasiado. Verifica tu conexión.'
+          errorMessage =
+            'La solicitud tardó demasiado. Verifica tu conexión.'
         } else if (error.response) {
-          errorMessage = error.response.data?.message || `Error del servidor (${error.response.status})`
+          errorMessage =
+            error.response.data?.message ||
+            `Error del servidor (${error.response.status})`
         } else if (error.request) {
-          errorMessage = 'No se pudo conectar al servidor. Verifica tu conexión.'
+          errorMessage =
+            'No se pudo conectar al servidor. Verifica tu conexión.'
         } else {
-          errorMessage = error.message || 'Error al iniciar sesión'
+          errorMessage =
+            error.message || 'Error al iniciar sesión'
         }
       } else if (error instanceof Error) {
         errorMessage = error.message
@@ -61,7 +69,8 @@ export default function LoginScreen() {
   }
 
   const isValidForm = (): boolean => {
-    if (Object.values(form).some(value => value === '')) return false
+    if (Object.values(form).some((value) => value === ''))
+      return false
 
     return true
   }
@@ -69,111 +78,124 @@ export default function LoginScreen() {
   const valid = isValidForm()
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <SafeAreaView
       style={styles.container}
+      edges={['top']}
     >
-      <View style={styles.screen}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Inicia sesion</Text>
-          <Text style={styles.subtle}>Accede a tu cuenta para continuar</Text>
-        </View>
-        <View style={styles.inputsContainer}>
-          <Input
-            value={form.username}
-            error={errors.username}
-            onChangeText={text => setField('username', text)}
-            label='Nombre de Usuario'
-            placeholder='example@gmail.com'
-            keyboardType='email-address'
-            autoCapitalize='none'
-            onEndEditing={() => {
-              if (!form.username)
-                return setError(
-                  'username',
-                  'El nombre de usuario es obligatorio'
-                )
-              if (form.username.includes(' '))
-                return setError(
-                  'username',
-                  'El nombre de usuario no debe contener espacios'
-                )
-              clearError('username')
-            }}
-          />
-          <Input
-            value={form.password}
-            error={errors.password}
-            onChangeText={text => setField('password', text)}
-            label='Contraseña'
-            placeholder='Ingrese su contraseña'
-            secureTextEntry={true}
-            autoCapitalize='none'
-            onEndEditing={() => {
-              if (!form.password)
-                return setError('password', 'La contraseña es obligatoria')
-              clearError('password')
-            }}
-          />
-          <Link
-            href={'/access/forgot-passwd' as Href}
-            style={styles.forgetPasswd}
-          >
-            ¿Olvidaste tu contraseña?
-          </Link>
-        </View>
+      <KeyboardAvoidingView
+        behavior={
+          Platform.OS === 'ios' ? 'padding' : 'height'
+        }
+        style={styles.content}
+      >
+        <CurvedHeader
+          title='Inicia Sesión'
+          subtitle='Accede a tu cuenta para continuar'
+        />
 
-        <TouchableOpacity
-          style={[
-            styles.loginButton,
-            (isLoading || !valid) && styles.loginButtonDisabled
-          ]}
-          onPress={handleLogin}
-          disabled={!valid || isLoading}
-        >
-          <Text style={styles.loginButtonText}>
-            {isLoading ? 'Loading...' : 'Login'}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.formSection}>
+          <View style={styles.inputsContainer}>
+            <Input
+              value={form.username}
+              error={errors.username}
+              onChangeText={(text) =>
+                setField('username', text)
+              }
+              label='Nombre de Usuario'
+              placeholder='example@gmail.com'
+              keyboardType='email-address'
+              autoCapitalize='none'
+              onEndEditing={() => {
+                if (!form.username)
+                  return setError(
+                    'username',
+                    'El nombre de usuario es obligatorio'
+                  )
+                if (form.username.includes(' '))
+                  return setError(
+                    'username',
+                    'El nombre de usuario no debe contener espacios'
+                  )
+                clearError('username')
+              }}
+            />
+            <Input
+              value={form.password}
+              error={errors.password}
+              onChangeText={(text) =>
+                setField('password', text)
+              }
+              label='Contraseña'
+              placeholder='Ingrese su contraseña'
+              secureTextEntry={true}
+              autoCapitalize='none'
+              onEndEditing={() => {
+                if (!form.password)
+                  return setError(
+                    'password',
+                    'La contraseña es obligatoria'
+                  )
+                clearError('password')
+              }}
+            />
+            <Link
+              href={'/access/forgot-passwd' as Href}
+              style={styles.forgetPasswd}
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </View>
 
-        <View style={styles.signupContainer}>
-          <Text style={styles.signupText}>No tienes una cuenta? </Text>
-          <Link
-            href={'/access/register' as Href}
-            replace
+          <TouchableOpacity
+            style={[
+              styles.loginButton,
+              (isLoading || !valid) &&
+                styles.loginButtonDisabled
+            ]}
+            onPress={handleLogin}
+            disabled={!valid || isLoading}
           >
-            <Text style={styles.signupLink}>Registrate.</Text>
-          </Link>
+            <Text style={styles.loginButtonText}>
+              {isLoading ? 'Loading...' : 'Login'}
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.signupContainer}>
+            <Text style={styles.signupText}>
+              No tienes una cuenta?{' '}
+            </Text>
+            <Link
+              href={'/access/register' as Href}
+              replace
+            >
+              <Text style={styles.signupLink}>
+                Registrate.
+              </Text>
+            </Link>
+          </View>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background
+    backgroundColor: '#ffffffff'
   },
-  screen: {
+  content: {
+    flex: 1
+  },
+  formSection: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 60,
-    gap: 18
-  },
-  header: {
-    gap: 4
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '600'
-  },
-  subtle: {
-    fontSize: 14,
-    color: '#666'
+    paddingTop: 40,
+    paddingBottom: 40,
+    gap: 20
   },
   inputsContainer: {
-    gap: 8
+    gap: 16
   },
   loginButton: {
     backgroundColor: COLORS.primary,
@@ -188,12 +210,13 @@ const styles = StyleSheet.create({
   },
   loginButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600'
   },
   signupContainer: {
     flexDirection: 'row',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginTop: 8
   },
   signupText: {
     fontSize: 14,

@@ -10,7 +10,6 @@ enum Endpoint {
 
 class ReportService {
   static async createReport(
-    token: string,
     report: AddReport
   ) {
     if (report.imageUri) {
@@ -68,8 +67,7 @@ class ReportService {
   }
 
   static async getReportById(
-    reportId: string,
-    token: string
+    reportId: string
   ): Promise<ReportModel> {
     const response = await axiosInstance.get(
       `${Endpoint.GET_BY_ID}/${reportId}`

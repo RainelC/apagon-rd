@@ -39,19 +39,6 @@ export default function Profile() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.profileSection}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={{ uri: `https://ui-avatars.com/api/?name=${name}&background=random` }}
-              style={styles.avatar}
-            />
-            <TouchableOpacity style={styles.editIconContainer}>
-              <MaterialIcons name="edit" size={16} color="#fff" />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.profileName}>{name}</Text>
-          <Text style={styles.profileEmail}>{email}</Text>
-        </View>
 
         {/* Personal Information */}
         <View style={styles.section}>
@@ -132,8 +119,6 @@ export default function Profile() {
             <MaterialIcons name="power-settings-new" size={24} color="#FF3B30" />
           </TouchableOpacity>
         </View>
-
-        <View style={{ height: 20 }} />
       </ScrollView>
     </View>
   )
