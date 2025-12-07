@@ -67,7 +67,6 @@ export default function MyReports() {
         setReports(fetchedReports)
       }
     } catch (error) {
-      console.error('Error loading reports:', error)
       Alert.alert(
         'Error',
         'No se pudieron cargar los reportes'

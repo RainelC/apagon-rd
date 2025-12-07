@@ -47,7 +47,6 @@ class AuthService {
       .catch(err => {
         let message = 'Error al iniciar sesión'
         if (err instanceof AxiosError) {
-          console.log(err.response?.data)
 
           if (err.response?.status === 401) {
             message = 'Credenciales inválidas'
@@ -77,7 +76,6 @@ class AuthService {
     data: recoverPasswdProps
   ): Promise<AxiosResponse | AxiosError> {
     try {
-      console.log(data)
       return await axiosInstance.post(Endpoint.RECOVER_PASSWORD, data)
     } catch (error: unknown) {
       return error as AxiosError
