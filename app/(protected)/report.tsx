@@ -46,7 +46,7 @@ export default function Report() {
       description: '',
       status: 'RECEIVED',
       powerStatus: 'POWER',
-      imageUri: ''
+      photoUrl: ''
     })
 
   const setFieldsRef = useRef(setFields)
@@ -83,7 +83,6 @@ export default function Report() {
                 location.coords.longitude.toFixed(5)
             })
           } catch (error) {
-            console.error('Error getting location:', error)
             Alert.alert(
               'Error',
               'No se pudo obtener la ubicación actual'
@@ -144,8 +143,8 @@ export default function Report() {
         quality: 1
       })
 
-    if (result.canceled) return setField('imageUri', '')
-    setField('imageUri', result.assets[0].uri)
+    if (result.canceled) return setField('photoUrl', '')
+    setField('photoUrl', result.assets[0].uri)
   }
 
   return (
@@ -216,7 +215,7 @@ export default function Report() {
           onPress={pickImage}
           style={[
             styles.imagePicker,
-            form.imageUri && {
+            form.photoUrl && {
               borderColor: COLORS.primary,
               backgroundColor: '#e0f7ff'
             }

@@ -12,11 +12,11 @@ class ReportService {
   static async createReport(
     report: AddReport
   ) {
-    if (report.imageUri) {
+    if (report.photoUrl) {
       const formData = new FormData()
 
       formData.append('file', {
-        uri: report.imageUri,
+        uri: report.photoUrl,
         type: 'image/*',
         name: 'report-image.jpg'
       } as any)
@@ -33,7 +33,7 @@ class ReportService {
       if (imageResponse.status !== 200)
         throw new Error('Error uploading image')
 
-      report.imageUri = imageResponse.data.uri
+      report.photoUrl = imageResponse.data.uri
     }
 
     const response = await axiosInstance.post(

@@ -89,7 +89,6 @@ const MapWebView = () => {
         )
         setSectors(sectors)
       } catch (error) {
-        console.log(error)
         Alert.alert(
           'Error',
           'No se pudieron cargar los sectores'
@@ -129,7 +128,7 @@ const MapWebView = () => {
         })
       }
     } catch (e) {
-      console.error(e)
+      Alert.alert('Error', 'Ocurrió un error')
     }
   }
 
@@ -305,9 +304,12 @@ const mapHtml = (
           }'}).addTo(map);
             
             polygon.on('click', function(e) {
-            if (clickMarker) {
-              map.removeLayer(clickMarker);
-            }
+              // Stop event propagation to prevent map click event
+              L.DomEvent.stopPropagation(e);
+              
+              if (clickMarker) {
+                map.removeLayer(clickMarker);
+              }
               
               var clickLat = e.latlng.lat;
               var clickLng = e.latlng.lng;
@@ -320,10 +322,7 @@ const mapHtml = (
                 '<button class="sector-popup-button" onclick="reportLocation(' + clickLat + ',' + clickLng + ')">Reportar avería</button>' +
                 '<button class="sector-popup-button" onclick="showSectorStats(${
                   sector.id
-                }, \\'${sector.name.replace(
-            /'/g,
-            "\\\\'"
-          )}\\')">Estadísticas</button>' +
+                })">Estadísticas</button>' +
                 '</div>';
               
               polygon.bindPopup(popupContent).openPopup(e.latlng);
@@ -401,7 +400,7 @@ const mapHtml = (
             map.flyTo([data.lat, data.lng], 15);
           }
         } catch (e) {
-          console.error("Error handling message:", e);
+          Alert.alert('Error', 'Ocurrió un error')
         }
       }
 

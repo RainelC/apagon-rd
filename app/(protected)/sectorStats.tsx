@@ -1,4 +1,10 @@
+import { GoBackButton } from '@components/GoBackButton'
+import { COLORS } from '@constants/colors'
 import { AuthContext } from '@context/AuthContext'
+import {
+  Ionicons,
+  MaterialCommunityIcons
+} from '@expo/vector-icons'
 import { MapService } from '@services/mapService'
 import { useLocalSearchParams } from 'expo-router'
 import { useContext, useEffect, useState } from 'react'
@@ -12,18 +18,16 @@ import {
   View
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { SectorUptimeResponse } from '../../src/types/SectorStats'
-import { GoBackButton } from '@components/GoBackButton'
+import { SectorUptimeHistory } from '../../src/types/Sectors'
 
 export default function SectorStats() {
   const auth = useContext(AuthContext)
-  const { sectorId, sectorName } = useLocalSearchParams<{
+  const { sectorId } = useLocalSearchParams<{
     sectorId: string
-    sectorName: string
   }>()
 
   const [stats, setStats] =
-    useState<SectorUptimeResponse | null>(null)
+    useState<SectorUptimeHistory | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -46,13 +50,14 @@ export default function SectorStats() {
 
       const data = await MapService.getSectorUptime(
         parseInt(sectorId),
-        startStr,
-        endStr
+        {
+          start: startStr,
+          end: endStr
+        }
       )
 
       setStats(data)
     } catch (error) {
-      console.error('Error loading sector stats:', error)
       Alert.alert(
         'Error',
         'No se pudieron cargar las estadísticas del sector'
@@ -71,21 +76,38 @@ export default function SectorStats() {
     )
   }
 
+  // Calculate derived values
+  const downtimeHours = stats
+    ? stats.totalHours - stats.powerHours
+    : 0
+  const effectivePercentage = stats ? stats.percentage : 0
+  const downtimePercentage = stats
+    ? 100 - stats.percentage
+    : 0
+
   return (
     <ScrollView style={styles.container}>
       <SafeAreaView
-        style={styles.container}
+        style={styles.safeArea}
         edges={['top']}
       />
-        <View style={styles.header}>
-         <GoBackButton />
-          <Text style={styles.title}>Estadísticas</Text>
+      <View style={styles.header}>
+        <GoBackButton />
+        <Text style={styles.title}>Estadísticas</Text>
         <View style={{ width: 50 }} />
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.sectorName}>{sectorName}</Text>
-        <Text style={styles.subtitle}>Últimos 30 días</Text>
+        {/* Header Section */}
+        <View style={styles.headerSection}>
+          <Text style={styles.pageTitle}>
+            Estadísticas del sector
+          </Text>
+          <Text style={styles.pageSubtitle}>
+            Aquí te mostramos cuánto tiempo tu sector ha
+            pasado sin energía este mes.
+          </Text>
+        </View>
 
         {loading ? (
           <View style={styles.loadingContainer}>
@@ -96,82 +118,334 @@ export default function SectorStats() {
           </View>
         ) : stats ? (
           <>
-            <View style={styles.statsCard}>
-              <View style={styles.statRow}>
-                <Text style={styles.statLabel}>
-                  Tiempo con energía
+            {/* Sector Info Card */}
+            <View style={styles.sectorInfoCard}>
+              <View style={styles.sectorInfoLeft}>
+                <Text style={styles.sectorLabel}>
+                  SECTOR
                 </Text>
-                <Text
-                  style={[
-                    styles.statValue,
-                    { color: '#34C759' }
-                  ]}
-                >
-                  {stats.uptimePercentage.toFixed(2)}%
+                <Text style={styles.sectorName}>
+                  {stats.sector.name}
                 </Text>
+                <View style={styles.statusBadge}>
+                  <Ionicons
+                    name={
+                      stats.sector.status === 'POWER'
+                        ? 'flash'
+                        : 'flash-off'
+                    }
+                    size={16}
+                    color={
+                      stats.sector.status === 'POWER'
+                        ? '#34C759'
+                        : '#FF3B30'
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.statusText,
+                      {
+                        color:
+                          stats.sector.status === 'POWER'
+                            ? '#34C759'
+                            : '#FF3B30'
+                      }
+                    ]}
+                  >
+                    {stats.sector.status === 'POWER'
+                      ? 'Con luz'
+                      : 'Sin luz'}
+                  </Text>
+                </View>
               </View>
-              <View style={styles.progressBar}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    { width: `${stats.uptimePercentage}%` }
-                  ]}
-                />
+              <View style={styles.sectorInfoRight}>
+                <Text style={styles.periodLabel}>
+                  {!stats.period ? stats.period : 'Período'}
+                </Text>
+                <Text style={styles.periodText}>
+                  {stats.period}
+                </Text>
               </View>
             </View>
 
-            <View style={styles.statsCard}>
-              <View style={styles.statRow}>
-                <Text style={styles.statLabel}>
-                  Tiempo sin energía
-                </Text>
-                <Text
-                  style={[
-                    styles.statValue,
-                    { color: '#FF3B30' }
-                  ]}
-                >
-                  {stats.downtimePercentage.toFixed(2)}%
+            <View style={styles.statsGrid}>
+              {/* Power time */}
+              <View style={styles.statCard}>
+                <View style={styles.statCardContent}>
+                  <View style={styles.statCardLeft}>
+                    <Text style={styles.statCardLabel}>
+                      Tiempo con energía
+                    </Text>
+                    <Text
+                      style={[
+                        styles.statCardValue,
+                        { color: '#34C759' }
+                      ]}
+                    >
+                      {effectivePercentage.toFixed(1)}%
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.statCardIcon,
+                      { backgroundColor: '#E8F5E9' }
+                    ]}
+                  >
+                    <Ionicons
+                      name='flash'
+                      size={24}
+                      color='#34C759'
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* Power hours */}
+              <View style={styles.statCard}>
+                <View style={styles.statCardContent}>
+                  <View style={styles.statCardLeft}>
+                    <Text style={styles.statCardLabel}>
+                      Horas con energía
+                    </Text>
+                    <Text
+                      style={[
+                        styles.statCardValue,
+                        { color: '#007AFF' }
+                      ]}
+                    >
+                      {stats.powerHours.toFixed(1)}
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.statCardIcon,
+                      { backgroundColor: '#E3F2FD' }
+                    ]}
+                  >
+                    <Ionicons
+                      name='time'
+                      size={24}
+                      color='#007AFF'
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* Downtime hours */}
+              <View style={styles.statCard}>
+                <View style={styles.statCardContent}>
+                  <View style={styles.statCardLeft}>
+                    <Text style={styles.statCardLabel}>
+                      Horas sin energía
+                    </Text>
+                    <Text
+                      style={[
+                        styles.statCardValue,
+                        { color: '#FF3B30' }
+                      ]}
+                    >
+                      {downtimeHours.toFixed(1)}
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.statCardIcon,
+                      { backgroundColor: '#FFEBEE' }
+                    ]}
+                  >
+                    <Ionicons
+                      name='flash-off'
+                      size={24}
+                      color='#FF3B30'
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* Total hours */}
+              <View style={styles.statCard}>
+                <View style={styles.statCardContent}>
+                  <View style={styles.statCardLeft}>
+                    <Text style={styles.statCardLabel}>
+                      Total horas
+                    </Text>
+                    <Text
+                      style={[
+                        styles.statCardValue,
+                        { color: '#666' }
+                      ]}
+                    >
+                      {stats.totalHours.toFixed(1)}
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.statCardIcon,
+                      { backgroundColor: '#F5F5F5' }
+                    ]}
+                  >
+                    <Ionicons
+                      name='calendar'
+                      size={24}
+                      color='#666'
+                    />
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Power percentage */}
+            <View style={styles.chartCard}>
+              <Text style={styles.chartTitle}>
+                Proporción de energía
+              </Text>
+              <View style={styles.chartContent}>
+                <View style={styles.progressBarLarge}>
+                  <View
+                    style={[
+                      styles.progressFillLarge,
+                      { width: `${effectivePercentage}%` }
+                    ]}
+                  />
+                </View>
+                <View style={styles.chartLegend}>
+                  <View style={styles.legendItem}>
+                    <View
+                      style={[
+                        styles.legendDot,
+                        { backgroundColor: '#34C759' }
+                      ]}
+                    />
+                    <Text style={styles.legendText}>
+                      Con energía (
+                      {effectivePercentage.toFixed(1)}%)
+                    </Text>
+                  </View>
+                  <View style={styles.legendItem}>
+                    <View
+                      style={[
+                        styles.legendDot,
+                        { backgroundColor: '#FF3B30' }
+                      ]}
+                    />
+                    <Text style={styles.legendText}>
+                      Sin energía (
+                      {downtimePercentage.toFixed(1)}%)
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Summary of the month */}
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryHeader}>
+                <MaterialCommunityIcons
+                  name='calendar-month'
+                  size={20}
+                  color='#9C27B0'
+                />
+                <Text style={styles.summaryTitle}>
+                  Resumen del mes
                 </Text>
               </View>
-              <View style={styles.progressBar}>
+              <View style={styles.summaryContent}>
                 <View
                   style={[
-                    styles.progressFillRed,
+                    styles.summaryItem,
+                    { backgroundColor: '#FFEBEE' }
+                  ]}
+                >
+                  <View style={styles.summaryItemLeft}>
+                    <Ionicons
+                      name='flash-off'
+                      size={18}
+                      color='#FF3B30'
+                    />
+                    <Text style={styles.summaryItemLabel}>
+                      Días sin energía
+                    </Text>
+                  </View>
+                  <Text
+                    style={[
+                      styles.summaryItemValue,
+                      { color: '#C62828' }
+                    ]}
+                  >
+                    {Math.round(
+                      (downtimeHours / stats.totalHours) *
+                        30
+                    )}{' '}
+                    días
+                  </Text>
+                </View>
+
+                <View
+                  style={[
+                    styles.summaryItem,
                     {
-                      width: `${stats.downtimePercentage}%`
+                      backgroundColor:
+                        effectivePercentage > 50
+                          ? '#E8F5E9'
+                          : '#E8EAF6'
                     }
                   ]}
-                />
-              </View>
-            </View>
+                >
+                  <View style={styles.summaryItemLeft}>
+                    <MaterialCommunityIcons
+                      name='percent'
+                      size={18}
+                      color={
+                        effectivePercentage > 50
+                          ? '#34C759'
+                          : '#5E35B1'
+                      }
+                    />
+                    <Text style={styles.summaryItemLabel}>
+                      Eficiencia
+                    </Text>
+                  </View>
+                  <Text
+                    style={[
+                      styles.summaryItemValue,
+                      {
+                        color:
+                          effectivePercentage > 50
+                            ? '#2E7D32'
+                            : '#5E35B1'
+                      }
+                    ]}
+                  >
+                    {effectivePercentage.toFixed(2)}%
+                  </Text>
+                </View>
 
-            <View style={styles.detailsCard}>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>
-                  Total de horas
-                </Text>
-                <Text style={styles.detailValue}>
-                  {stats.totalHours.toFixed(2)} hrs
-                </Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>
-                  Horas con energía
-                </Text>
-                <Text style={styles.detailValue}>
-                  {stats.uptime.toFixed(2)} hrs
-                </Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>
-                  Horas sin energía
-                </Text>
-                <Text style={styles.detailValue}>
-                  {stats.downtime.toFixed(2)} hrs
-                </Text>
+                <View
+                  style={[
+                    styles.summaryItem,
+                    { backgroundColor: '#FFEBEE' }
+                  ]}
+                >
+                  <View style={styles.summaryItemLeft}>
+                    <Ionicons
+                      name='flash-off'
+                      size={18}
+                      color='#FF3B30'
+                    />
+                    <Text style={styles.summaryItemLabel}>
+                      Promedio diario sin luz
+                    </Text>
+                  </View>
+                  <Text
+                    style={[
+                      styles.summaryItemValue,
+                      { color: '#C62828' }
+                    ]}
+                  >
+                    {(downtimeHours / 30).toFixed(2)}{' '}
+                    hrs/día
+                  </Text>
+                </View>
               </View>
             </View>
 
@@ -179,6 +453,11 @@ export default function SectorStats() {
               style={styles.refreshButton}
               onPress={loadSectorStats}
             >
+              <Ionicons
+                name='refresh'
+                size={20}
+                color='#fff'
+              />
               <Text style={styles.refreshButtonText}>
                 Actualizar
               </Text>
@@ -201,6 +480,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff'
   },
+  safeArea: {
+    backgroundColor: '#fff'
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -216,101 +498,237 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#000000'
   },
-  backButton: {
-    fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '600'
-  },
   content: {
     padding: 20
   },
-  sectorName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 4
+  headerSection: {
+    marginBottom: 24
   },
-  subtitle: {
+  pageTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 8
+  },
+  pageSubtitle: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 24
+    lineHeight: 20
   },
   loadingContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: 300
   },
-  statsCard: {
-    backgroundColor: '#F9F9F9',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
+  sectorInfoCard: {
+    backgroundColor: '#EEF2FF',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#E0E0E0'
+    borderColor: '#E0E7FF',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   },
-  statRow: {
+  sectorInfoLeft: {
+    flex: 1
+  },
+  sectorLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#666',
+    letterSpacing: 1,
+    marginBottom: 4
+  },
+  sectorName: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 8
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    gap: 6
+  },
+  statusText: {
+    fontSize: 13,
+    fontWeight: '600'
+  },
+  sectorInfoRight: {
+    alignItems: 'flex-end'
+  },
+  periodLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 4
+  },
+  periodText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333'
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 20
+  },
+  statCard: {
+    width: '48%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1
+  },
+  statCardContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12
+    alignItems: 'flex-start'
   },
-  statLabel: {
-    fontSize: 16,
-    color: '#333',
-    fontWeight: '500'
+  statCardLeft: {
+    flex: 1
   },
-  statValue: {
-    fontSize: 24,
+  statCardLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#666',
+    marginBottom: 6
+  },
+  statCardValue: {
+    fontSize: 28,
     fontWeight: '700'
   },
-  progressBar: {
-    height: 8,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 4,
+  statCardIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  chartCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1
+  },
+  chartTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 16
+  },
+  chartContent: {
+    gap: 16
+  },
+  progressBarLarge: {
+    height: 24,
+    backgroundColor: '#FFEBEE',
+    borderRadius: 12,
     overflow: 'hidden'
   },
-  progressFill: {
+  progressFillLarge: {
     height: '100%',
     backgroundColor: '#34C759',
-    borderRadius: 4
+    borderRadius: 12
   },
-  progressFillRed: {
-    height: '100%',
-    backgroundColor: '#FF3B30',
-    borderRadius: 4
-  },
-  detailsCard: {
-    backgroundColor: '#F9F9F9',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#E0E0E0'
-  },
-  detailRow: {
+  chartLegend: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8
+    justifyContent: 'space-around',
+    gap: 12
   },
-  detailLabel: {
-    fontSize: 14,
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+  },
+  legendDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6
+  },
+  legendText: {
+    fontSize: 13,
     color: '#666',
     fontWeight: '500'
   },
-  detailValue: {
+  summaryCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1
+  },
+  summaryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16
+  },
+  summaryTitle: {
     fontSize: 16,
-    color: '#333',
-    fontWeight: '600'
+    fontWeight: '600',
+    color: '#333'
+  },
+  summaryContent: {
+    gap: 12
+  },
+  summaryItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8
+  },
+  summaryItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1
+  },
+  summaryItemLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#333'
+  },
+  summaryItemValue: {
+    fontSize: 16,
+    fontWeight: '700'
   },
   refreshButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: COLORS.primary,
     paddingVertical: 14,
     paddingHorizontal: 20,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8
+    marginTop: 8,
+    flexDirection: 'row',
+    gap: 8
   },
   refreshButtonText: {
     color: '#fff',

@@ -1,3 +1,4 @@
+import { GoBackButton } from '@components/GoBackButton'
 import ReportMap from '@components/ReportMap'
 import { AuthContext } from '@context/AuthContext'
 import { useLocalSearchParams } from 'expo-router'
@@ -9,11 +10,12 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ReportModel } from '../../src/types/Report'
-import { GoBackButton } from '@components/GoBackButton'
+import { ImageViewer } from '@components/ImageViewer'
 
 export default function ReportDetails() {
   const { reportDetail: reportDetailParam } =
@@ -23,6 +25,8 @@ export default function ReportDetails() {
   const auth = useContext(AuthContext)
   const [reportDetail, setReportDetail] =
     useState<ReportModel | null>(null)
+  const [imageModalVisible, setImageModalVisible] =
+    useState(false)
 
   useEffect(() => {
     if (reportDetailParam) {
@@ -30,7 +34,6 @@ export default function ReportDetails() {
         const parsedReport = JSON.parse(reportDetailParam)
         setReportDetail(parsedReport)
       } catch (error) {
-        console.error('Error parsing report detail:', error)
         Alert.alert(
           'Error',
           'No se pudo cargar el detalle del reporte'
@@ -38,6 +41,14 @@ export default function ReportDetails() {
       }
     }
   }, [reportDetailParam])
+
+  const openImage = () => {
+    setImageModalVisible(true)
+  }
+
+  const closeImage = () => {
+    setImageModalVisible(false)
+  }
 
   if (!auth || !auth.token) {
     return (
@@ -63,7 +74,6 @@ export default function ReportDetails() {
       style={styles.container}
       edges={['top']}
     >
-      {/* Header */}
       <View style={styles.header}>
         <GoBackButton />
         <Text style={styles.headerTitle}>
@@ -76,7 +86,6 @@ export default function ReportDetails() {
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Descripción */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             Descripción
@@ -86,7 +95,6 @@ export default function ReportDetails() {
           </Text>
         </View>
 
-        {/* Estado de la energía */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             Estado de la energía
@@ -111,16 +119,20 @@ export default function ReportDetails() {
           </View>
         </View>
 
-        {/* Fotos */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Fotos</Text>
           {reportDetail.photoUrl ? (
             <View style={styles.photosContainer}>
-              <Image
-                source={{ uri: reportDetail.photoUrl }}
+              <TouchableOpacity
+                onPress={openImage}
                 style={styles.photo}
-                resizeMode='cover'
-              />
+              >
+                <Image
+                  source={{ uri: reportDetail.photoUrl }}
+                  resizeMode='cover'
+                  style={styles.photo}
+                />
+              </TouchableOpacity>
             </View>
           ) : (
             <Text style={styles.noDataText}>
@@ -128,8 +140,11 @@ export default function ReportDetails() {
             </Text>
           )}
         </View>
-
-        {/* Ubicación */}
+        <ImageViewer
+          visible={imageModalVisible}
+          onClose={closeImage}
+          imageUrl={reportDetail?.photoUrl}
+        />
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Ubicación</Text>
           <ReportMap

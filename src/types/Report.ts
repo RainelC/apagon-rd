@@ -8,7 +8,7 @@ interface AddReport {
   description: string
   powerStatus: 'NO_POWER' | 'POWER'
   status: 'RECEIVED' | 'IN_PROGRESS' | 'RESOLVER'
-  imageUri: string
+  photoUrl: string
 }
 
 interface ReportModel {

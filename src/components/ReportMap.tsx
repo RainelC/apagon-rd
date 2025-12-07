@@ -1,4 +1,12 @@
-import { StyleSheet, View } from 'react-native'
+import {
+  ActionSheetIOS,
+  Alert,
+  Linking,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View
+} from 'react-native'
 import { WebView } from 'react-native-webview'
 
 interface ReportMapProps {
@@ -12,16 +20,94 @@ const ReportMap = ({
   longitude,
   touchControl
 }: ReportMapProps) => {
+  const openInMaps = () => {
+    const lat = parseFloat(latitude)
+    const lng = parseFloat(longitude)
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [
+            'Cancelar',
+            'Apple Maps',
+            'Google Maps',
+            'Waze'
+          ],
+          cancelButtonIndex: 0,
+          title: 'Abrir ubicación en:'
+        },
+        (buttonIndex) => {
+          let url = ''
+          switch (buttonIndex) {
+            case 1: // Apple Maps
+              url = `maps:0,0?q=${lat},${lng}`
+              break
+            case 2: // Google Maps
+              url = `comgooglemaps://?q=${lat},${lng}`
+              break
+            case 3: // Waze
+              url = `waze://?ll=${lat},${lng}&navigate=yes`
+              break
+            default:
+              return
+          }
+
+          Linking.canOpenURL(url)
+            .then((supported) => {
+              if (supported) {
+                return Linking.openURL(url)
+              } else {
+                // Fallback to web version
+                const webUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+                return Linking.openURL(webUrl)
+              }
+            })
+            .catch((err) => {
+              Alert.alert(
+                'Error',
+                'No se pudo abrir el mapa'
+              )
+            })
+        }
+      )
+    } else {
+      const url = `geo:0,0?q=${lat},${lng}`
+      Linking.canOpenURL(url)
+        .then((supported) => {
+          if (supported) {
+            return Linking.openURL(url)
+          } else {
+            return Linking.openURL(
+              `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+            )
+          }
+        })
+        .catch((err) => {
+          Alert.alert(
+            'Error',
+            'No se pudo abrir Google Maps'
+          )
+        })
+    }
+  }
+
   return (
     <View style={styles.container}>
-      <WebView
-        originWhitelist={['*']}
-        source={{
-          html: mapHtml(latitude, longitude, touchControl)
-        }}
-        scrollEnabled={false}
-        style={styles.webview}
-      />
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={openInMaps}
+        style={styles.touchable}
+      >
+        <WebView
+          originWhitelist={['*']}
+          source={{
+            html: mapHtml(latitude, longitude, touchControl)
+          }}
+          scrollEnabled={false}
+          style={styles.webview}
+          pointerEvents='none'
+        />
+      </TouchableOpacity>
     </View>
   )
 }
@@ -34,6 +120,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#f0f0f0',
     marginVertical: 15
+  },
+  touchable: {
+    flex: 1
   },
   webview: {
     flex: 1,

@@ -1,6 +1,6 @@
 import { axiosInstance } from '../api/apiClient'
 import { Sector } from '../types/Sectors'
-import { SectorUptimeResponse } from '../types/SectorStats'
+import { SectorUptimeHistory, SectorUptimeParams } from '../types/Sectors'
 
 enum Endpoint {
   SECTORS_GEOJSON = 'sectors',
@@ -40,19 +40,11 @@ class MapService {
 
   static async getSectorUptime(
     sectorId: number,
-    start: string,
-    end: string
-  ): Promise<SectorUptimeResponse> {
+    params: SectorUptimeParams
+  ): Promise<SectorUptimeHistory> {
     const response =
-      await axiosInstance.get<SectorUptimeResponse>(
-        `${Endpoint.SECTOR_UPTIME}/${sectorId}/uptime`,
-        {
-          data: {
-            start,
-            end
-          }
-        }
-      )
+      await axiosInstance.get<SectorUptimeHistory>(
+        `${Endpoint.SECTOR_UPTIME}/${sectorId}/uptime`, {params});
 
     return response.data
   }
