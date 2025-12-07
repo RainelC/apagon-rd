@@ -10,7 +10,7 @@ import {
   removeToken
 } from '@utils/authStorage'
 
-interface AuthContextType {
+export interface AuthContextType {
   token: string | null
   signIn: (token: string) => Promise<void>
   signOut: () => Promise<void>

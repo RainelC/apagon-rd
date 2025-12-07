@@ -1,11 +1,12 @@
 import { CurvedHeader } from '@components/CurvedHeader'
 import { Input } from '@components/Input'
 import { COLORS } from '@constants/colors'
+import { useAuth } from '@hooks/useAuth'
 import { useForm } from '@hooks/useForm'
 import { AuthService } from '@services/authService'
 import { AxiosError } from 'axios'
 import { Href, Link, router } from 'expo-router'
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import {
   Alert,
   KeyboardAvoidingView,
@@ -16,7 +17,6 @@ import {
   View
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { AuthContext } from '../../src/context/AuthContext'
 
 const authService = new AuthService()
 
@@ -27,7 +27,7 @@ export default function LoginScreen() {
       password: ''
     })
 
-  const { signIn } = useContext(AuthContext)!
+  const { signIn } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
   const handleLogin = async () => {

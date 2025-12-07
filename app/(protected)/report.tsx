@@ -1,6 +1,5 @@
 import ReportMap from '@components/ReportMap'
 import { COLORS } from '@constants/colors'
-import { AuthContext } from '@context/AuthContext'
 import { Ionicons } from '@expo/vector-icons'
 import { useForm } from '@hooks/useForm'
 import { ReportService } from '@services/reportService'
@@ -11,14 +10,8 @@ import {
   useFocusEffect,
   useLocalSearchParams
 } from 'expo-router'
+import { useCallback, useRef, useState } from 'react'
 import {
-  useCallback,
-  useContext,
-  useRef,
-  useState
-} from 'react'
-import {
-  ActivityIndicator,
   Alert,
   ScrollView,
   StyleSheet,
@@ -30,15 +23,13 @@ import {
 import { AddReport } from '../../src/types/Report'
 
 export default function Report() {
-  const auth = useContext(AuthContext)
-
   const { lat, lng } = useLocalSearchParams<{
     lat: string
     lng: string
   }>()
 
   const [loading, setLoading] = useState(false)
-  const { form, setField, setFields, errors, resetForm } =
+  const { form, setField, setFields,  resetForm } =
     useForm<AddReport>({
       latitude: lat || '',
       longitude: lng || '',
@@ -82,7 +73,7 @@ export default function Report() {
               longitude:
                 location.coords.longitude.toFixed(5)
             })
-          } catch (error) {
+          } catch  {
             Alert.alert(
               'Error',
               'No se pudo obtener la ubicación actual'
@@ -94,16 +85,6 @@ export default function Report() {
       handleLocation()
     }, [lat, lng])
   )
-
-  if (!auth || !auth.token)
-    return (
-      <ActivityIndicator
-        size='large'
-        color='#0000ff'
-      />
-    )
-
-  const { token } = auth
 
   const handleSubmit = async () => {
     if (!form.description.trim()) {
@@ -151,7 +132,11 @@ export default function Report() {
     <ScrollView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.formGroup}>
-          <Text style={[styles.label, styles.zeroMarginTop]}>Descripción</Text>
+          <Text
+            style={[styles.label, styles.zeroMarginTop]}
+          >
+            Descripción
+          </Text>
           <TextInput
             style={styles.textarea}
             placeholder='Describe la avería detalladamente...'
@@ -266,7 +251,7 @@ const styles = StyleSheet.create({
     padding: 20
   },
   textarea: {
-    minHeight: 150,
+    minHeight: 120,
     backgroundColor: '#f0f0f0',
     padding: 15,
     borderRadius: 5,

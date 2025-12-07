@@ -1,10 +1,9 @@
 import { GoBackButton } from '@components/GoBackButton'
+import { ImageViewer } from '@components/ImageViewer'
 import ReportMap from '@components/ReportMap'
-import { AuthContext } from '@context/AuthContext'
 import { useLocalSearchParams } from 'expo-router'
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
-  ActivityIndicator,
   Alert,
   Image,
   ScrollView,
@@ -15,14 +14,12 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ReportModel } from '../../src/types/Report'
-import { ImageViewer } from '@components/ImageViewer'
 
 export default function ReportDetails() {
   const { reportDetail: reportDetailParam } =
     useLocalSearchParams<{
       reportDetail: string
     }>()
-  const auth = useContext(AuthContext)
   const [reportDetail, setReportDetail] =
     useState<ReportModel | null>(null)
   const [imageModalVisible, setImageModalVisible] =
@@ -33,7 +30,7 @@ export default function ReportDetails() {
       try {
         const parsedReport = JSON.parse(reportDetailParam)
         setReportDetail(parsedReport)
-      } catch (error) {
+      } catch {
         Alert.alert(
           'Error',
           'No se pudo cargar el detalle del reporte'
@@ -48,17 +45,6 @@ export default function ReportDetails() {
 
   const closeImage = () => {
     setImageModalVisible(false)
-  }
-
-  if (!auth || !auth.token) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator
-          size='large'
-          color='#007AFF'
-        />
-      </View>
-    )
   }
 
   if (!reportDetail) {

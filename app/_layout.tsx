@@ -1,30 +1,27 @@
-import { Href, Redirect, Tabs } from 'expo-router'
-import {
-  AuthProvider,
-  AuthContext
-} from '@context/AuthContext'
-import { useContext, useEffect } from 'react'
-import * as NavigationBar from 'expo-navigation-bar'
-import { Platform } from 'react-native'
-import { StatusBar } from 'expo-status-bar'
+import { AuthProvider } from '@context/AuthContext'
+import { useAuth } from '@hooks/useAuth'
 import * as Linking from 'expo-linking'
+import * as NavigationBar from 'expo-navigation-bar'
+import { Href, Redirect, Tabs } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
+import { useEffect } from 'react'
+import { ActivityIndicator, Platform } from 'react-native'
 
 function RootLayoutNav() {
-  const auth = useContext(AuthContext)
+  const { loading, token } = useAuth()
 
   /// We have to test this fuctions with the apk
   async function getInitialDeepLink() {
-    const url = await Linking.getLinkingURL()
-    if (url) {
-      console.log('App launched with URL:', url)
-      return <Redirect href={url as Href} />
-    }
+    const url = Linking.getLinkingURL()
+    if (!url) return
+    return <Redirect href={url as Href} />
   }
 
   getInitialDeepLink()
 
-  if (auth?.loading) return null
-  if (!auth?.token) return <Redirect href={'/access/login' as Href} />
+  if (loading) return <ActivityIndicator size='large' />
+  if (!token)
+    return <Redirect href={'/access/login' as Href} />
   return <Redirect href={'/(protected)' as Href} />
 }
 

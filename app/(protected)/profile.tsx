@@ -1,10 +1,10 @@
 import { Input } from '@components/Input'
-import { AuthContext } from '@context/AuthContext'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useContext, useState } from 'react'
+import { useAuth } from '@hooks/useAuth'
+import { Tabs } from 'expo-router'
+import { useState } from 'react'
 import {
   ActivityIndicator,
-  Image,
   ScrollView,
   StyleSheet,
   Switch,
@@ -14,7 +14,20 @@ import {
 } from 'react-native'
 
 export default function Profile() {
-  const auth = useContext(AuthContext)
+  const auth = useAuth()
+  const { signOut } = auth
+
+  const [name, setName] = useState(
+    // user ? `${user.firstName} ${user.lastName}` : ''
+    ''
+  )
+  const [phone, setPhone] = useState('')
+  // const [email, setEmail] = useState(user?.email || '')
+  const [email, setEmail] = useState('')
+
+  const [notifications, setNotifications] = useState(true)
+  const [sms, setSms] = useState(false)
+
   if (!auth)
     return (
       <ActivityIndicator
@@ -23,72 +36,94 @@ export default function Profile() {
       />
     )
 
-  const { user, signOut } = auth
-  
-  const [name, setName] = useState(user ? `${user.firstName} ${user.lastName}` : '')
-  const [phone, setPhone] = useState('')
-  const [email, setEmail] = useState(user?.email || '')
-  
-  const [notifications, setNotifications] = useState(true)
-  const [sms, setSms] = useState(false)
-
   return (
     <View style={styles.container}>
-      <ScrollView 
-        style={styles.scrollView} 
+      <Tabs.Screen
+        options={{
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => {
+                /* handle save action */
+              }}
+            >
+              <Text
+                style={{
+                  color: '#007AFF',
+                  marginRight: 20
+                }}
+              >
+                Guardar
+              </Text>
+            </TouchableOpacity>
+          )
+        }}
+      />
+      <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-
         {/* Personal Information */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Información Personal</Text>
+          <Text style={styles.sectionTitle}>
+            Información Personal
+          </Text>
           <View style={styles.formGroup}>
             <Input
-              label="Nombre"
+              label='Nombre'
               value={name}
               onChangeText={setName}
-              placeholder="Nombre Completo"
+              placeholder='Nombre Completo'
             />
             <Input
-              label="Número de Teléfono"
+              label='Número de Teléfono'
               value={phone}
               onChangeText={setPhone}
-              placeholder="Teléfono"
-              keyboardType="phone-pad"
+              placeholder='Teléfono'
+              keyboardType='phone-pad'
             />
             <Input
-              label="Correo Electrónico"
+              label='Correo Electrónico'
               value={email}
               onChangeText={setEmail}
-              placeholder="Correo"
-              keyboardType="email-address"
+              placeholder='Correo'
+              keyboardType='email-address'
             />
           </View>
         </View>
 
         {/* Preferences */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferencias</Text>
-          
+          <Text style={styles.sectionTitle}>
+            Preferencias
+          </Text>
+
           <View style={styles.preferenceItem}>
             <View style={styles.preferenceInfo}>
-              <Text style={styles.preferenceLabel}>Notificaciones</Text>
+              <Text style={styles.preferenceLabel}>
+                Notificaciones
+              </Text>
               <Text style={styles.preferenceDescription}>
-                Recibir notificaciones sobre el estado de sus reportes
+                Recibir notificaciones sobre el estado de
+                sus reportes
               </Text>
             </View>
             <Switch
               value={notifications}
               onValueChange={setNotifications}
-              trackColor={{ false: '#E0E0E0', true: '#007AFF' }}
+              trackColor={{
+                false: '#E0E0E0',
+                true: '#007AFF'
+              }}
               thumbColor={'#fff'}
             />
           </View>
 
           <View style={styles.preferenceItem}>
             <View style={styles.preferenceInfo}>
-              <Text style={styles.preferenceLabel}>SMS</Text>
+              <Text style={styles.preferenceLabel}>
+                SMS
+              </Text>
               <Text style={styles.preferenceDescription}>
                 Recibir actualizaciones importantes por SMS
               </Text>
@@ -96,7 +131,10 @@ export default function Profile() {
             <Switch
               value={sms}
               onValueChange={setSms}
-              trackColor={{ false: '#E0E0E0', true: '#007AFF' }}
+              trackColor={{
+                false: '#E0E0E0',
+                true: '#007AFF'
+              }}
               thumbColor={'#fff'}
             />
           </View>
@@ -104,19 +142,33 @@ export default function Profile() {
 
         {/* Configuration */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Configuración</Text>
-          
+          <Text style={styles.sectionTitle}>
+            Configuración
+          </Text>
+
           <TouchableOpacity style={styles.configItem}>
-            <Text style={styles.configLabel}>Cambiar Contraseña</Text>
-            <MaterialIcons name="chevron-right" size={24} color="#666" />
+            <Text style={styles.configLabel}>
+              Cambiar Contraseña
+            </Text>
+            <MaterialIcons
+              name='chevron-right'
+              size={24}
+              color='#666'
+            />
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.configItem}
             onPress={signOut}
           >
-            <Text style={styles.logoutText}>Cerrar Sesión</Text>
-            <MaterialIcons name="power-settings-new" size={24} color="#FF3B30" />
+            <Text style={styles.logoutText}>
+              Cerrar Sesión
+            </Text>
+            <MaterialIcons
+              name='power-settings-new'
+              size={24}
+              color='#FF3B30'
+            />
           </TouchableOpacity>
         </View>
       </ScrollView>

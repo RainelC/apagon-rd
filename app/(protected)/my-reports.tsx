@@ -1,5 +1,6 @@
+import { useAuth } from '@hooks/useAuth'
 import { useFocusEffect } from 'expo-router'
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
@@ -10,29 +11,19 @@ import {
   View
 } from 'react-native'
 import ReportItem from '../../src/components/report'
-import { AuthContext } from '../../src/context/AuthContext'
 import { ReportService } from '../../src/services/reportService'
 import { ReportModel } from '../../src/types/Report'
-import { decodeJWT, getUserIdFromToken } from '../../src/utils/jwtDecoder'
+import { getUserIdFromToken } from '../../src/utils/jwtDecoder'
 
 type FilterType = 'ACTIVE' | 'RESOLVER'
 
 export default function MyReports() {
-  const auth = useContext(AuthContext)
+  const auth = useAuth()
   const [reports, setReports] = useState<ReportModel[]>([])
   const [loading, setLoading] = useState(true)
   const [activeFilter, setActiveFilter] =
     useState<FilterType>('ACTIVE')
-
-  useFocusEffect(
-    useCallback(() => {
-      if (auth?.token) {
-        loadReports()
-      }
-    }, [auth?.token, activeFilter])
-  )
-
-  const loadReports = async () => {
+  const loadReports = useCallback(async () => {
     if (!auth?.token) return
     try {
       setLoading(true)
@@ -66,7 +57,7 @@ export default function MyReports() {
       } else {
         setReports(fetchedReports)
       }
-    } catch (error) {
+    } catch {
       Alert.alert(
         'Error',
         'No se pudieron cargar los reportes'
@@ -74,7 +65,16 @@ export default function MyReports() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [activeFilter, auth?.token])
+
+  useFocusEffect(
+    useCallback(() => {
+      if (auth?.token) {
+        loadReports()
+      }
+    }, [auth?.token, loadReports])
+  )
+
   return (
     <View style={styles.container}>
       <View style={styles.filterContainer}>

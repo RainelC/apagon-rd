@@ -49,7 +49,7 @@ export default function ReluxChatbot() {
 
     try {
       await callBotAPI(inputText)
-    } catch (error) {
+    } catch {
       Alert.alert(
         'Error',
         'No se pudo enviar el mensaje. Verifica tu conexión.'
