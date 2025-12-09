@@ -12,7 +12,7 @@ import {
   Image,
 } from 'react-native'
 import { AuthService } from '@services/authService'
-import { COLORS } from '@constants/colors'
+import { LIGHT_COLORS, DARK_COLORS } from '@constants/colors'
 import { GoBackButton } from '@components/GoBackButton'
 import { AxiosError } from 'axios'
 
@@ -24,6 +24,8 @@ export default function LoginScreen() {
       username: ''
     })
 
+  const [isDarkMode, setIsDarkMode] = useState(false)
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
   const [isLoading, setIsLoading] = useState(false)
 
   const handleForgotPasswd = async () => {
@@ -70,7 +72,7 @@ export default function LoginScreen() {
       behavior={
         Platform.OS === 'ios' ? 'padding' : 'height'
       }
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <View style={styles.screen}>
         <View style={styles.header}>
@@ -118,6 +120,7 @@ export default function LoginScreen() {
         <TouchableOpacity
           style={[
             styles.button,
+            { backgroundColor: colors.primary },
             (isLoading || !valid) && styles.buttonDisabled
           ]}
           onPress={handleForgotPasswd}
@@ -135,7 +138,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background
   },
   screen: {
     paddingHorizontal: 24,
@@ -160,22 +162,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 600
   },
-  anotherWayText: {
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: 600,
-    textDecorationLine: 'underline',
-    color: COLORS.primary
-  },
   image: {
     width: 200,
     height: 200,
-    color: COLORS.primary,
+
     borderRadius: 100,
     margin: 15
   },
   button: {
-    backgroundColor: COLORS.primary,
     height: 56,
     borderRadius: 12,
     alignItems: 'center',

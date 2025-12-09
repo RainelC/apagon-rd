@@ -1,4 +1,5 @@
 import { AuthContext } from '@context/AuthContext'
+import { useTheme } from '@context/ThemeContext'
 import { MaterialIcons } from '@expo/vector-icons'
 import { MapService } from '@services/mapService'
 import * as Location from 'expo-location'
@@ -24,9 +25,12 @@ import {
 } from 'react-native-webview'
 import { Double } from 'react-native/Libraries/Types/CodegenTypes'
 import { Sector } from '../types/Sectors'
+import { DARK_COLORS, LIGHT_COLORS } from '@constants/colors'
 
 const MapWebView = () => {
   const auth = useContext(AuthContext)
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
   const router = useRouter()
   const [sectors, setSectors] = useState<Sector[]>([])
   const webviewRef = useRef<WebView>(null)
@@ -142,7 +146,8 @@ const MapWebView = () => {
             sectors,
             location?.coords.latitude,
             location?.coords.longitude,
-            location?.coords.accuracy
+            location?.coords.accuracy,
+            isDarkMode
           )
         }}
         onMessage={onMessage}
@@ -150,7 +155,10 @@ const MapWebView = () => {
       />
 
       <TouchableOpacity
-        style={styles.myLocationButton}
+        style={[
+          styles.myLocationButton,
+          { backgroundColor: colors.primary }
+        ]}
         onPress={() => {
           if (location?.coords) {
             webviewRef.current?.postMessage(
@@ -168,7 +176,7 @@ const MapWebView = () => {
         <MaterialIcons
           name='my-location'
           size={24}
-          color='#333'
+          color={colors.background}
         />
       </TouchableOpacity>
     </View>
@@ -179,23 +187,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1
   },
-  floatingButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#007bff',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84
-  },
   myLocationButton: {
     position: 'absolute',
     bottom: 65,
@@ -204,7 +195,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 25,
     elevation: 5,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2
@@ -212,11 +202,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     zIndex: 1000
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold'
   }
 })
 
@@ -226,7 +211,8 @@ const mapHtml = (
   sectors: Sector[],
   longitude: Double | undefined,
   latitude: Double | undefined,
-  accuracy: Double | undefined | null
+  accuracy: Double | undefined | null,
+  isDarkMode: boolean
 ) => `
 <!DOCTYPE html>
 <html>
@@ -245,6 +231,11 @@ const mapHtml = (
         padding: 0;
         height: 100%;
         width: 100%;
+        ${
+          isDarkMode
+            ? 'filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);'
+            : ''
+        }
       }
       .leaflet-popup-content-wrapper,
       .leaflet-popup-tip {

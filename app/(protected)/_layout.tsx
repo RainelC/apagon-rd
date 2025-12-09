@@ -1,4 +1,8 @@
-import { COLORS } from '@constants/colors'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
+import { useTheme } from '@context/ThemeContext'
 import {
   AntDesign,
   FontAwesome,
@@ -70,14 +74,17 @@ const TABS_CONFIG = [
 ] as const
 
 export default function ProtectedLayout() {
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: `${COLORS.secondary}90`,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: `${colors.secondary}90`,
         tabBarStyle: {
+          backgroundColor: colors.background,
           borderTopWidth: 1,
-          borderTopColor: `${COLORS.secondary}20`,
+          borderTopColor: `${colors.secondary}20`,
           paddingTop: 20,
           height: 130
         },
@@ -93,7 +100,7 @@ export default function ProtectedLayout() {
               alignItems: 'center'
             }}
             android_ripple={{
-              color: `${COLORS.primary}20`,
+              color: `${colors.primary}20`,
               borderless: true,
               radius: 50
             }}
@@ -106,8 +113,16 @@ export default function ProtectedLayout() {
           key={tab.name}
           name={tab.name}
           options={{
+            headerStyle: {
+              backgroundColor: colors.background
+            },
             headerTitle: () => (
-              <Text style={styles.headerTitle}>
+              <Text
+                style={[
+                  styles.headerTitle,
+                  { color: colors.text }
+                ]}
+              >
                 {tab.headerTitle}
               </Text>
             ),
@@ -144,7 +159,6 @@ export default function ProtectedLayout() {
 const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#000000'
+    fontWeight: '700'
   }
 })

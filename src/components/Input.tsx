@@ -1,4 +1,8 @@
-import { COLORS } from '@constants/colors'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
+import { useTheme } from '@context/ThemeContext'
 import {
   StyleSheet,
   Text,
@@ -23,18 +27,29 @@ const Input: React.FC<InputProps> = ({
   error,
   ...props
 }) => {
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
   return (
     <View style={styles.inputContainer}>
-      <Text style={styles.label}>{label}</Text>
+      <Text
+        style={[styles.label, { color: colors.secondary }]}
+      >
+        {label}
+      </Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
         style={[
           styles.input,
+          {
+            backgroundColor: colors.inputBackground,
+            color: colors.text,
+            borderColor: colors.border
+          },
           error ? styles.inputError : null
         ]}
         placeholder={placeholder}
-        placeholderTextColor='#999'
+        placeholderTextColor={colors.textSecondary}
         {...props}
       />
       <Text style={styles.errorText}>{error}</Text>
@@ -47,8 +62,7 @@ const styles = StyleSheet.create({
     gap: 2
   },
   label: {
-    fontSize: 12,
-    color: COLORS.secondary
+    fontSize: 12
   },
   input: {
     borderWidth: 1,

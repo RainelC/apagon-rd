@@ -1,4 +1,8 @@
-import { COLORS } from '@constants/colors'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
+import { useTheme } from '@context/ThemeContext'
 import { StyleSheet, View } from 'react-native'
 
 interface RadioButtonProps {
@@ -10,6 +14,9 @@ export function RadioButton({
   style,
   selected
 }: RadioButtonProps) {
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
+
   return (
     <View
       style={[
@@ -17,11 +24,11 @@ export function RadioButton({
         style,
         {
           backgroundColor: selected
-            ? COLORS.primary
-            : COLORS.background,
+            ? colors.primary
+            : colors.background,
           borderColor: selected
-            ? COLORS.primary
-            : `${COLORS.secondary}60`
+            ? colors.primary
+            : `${colors.secondary}60`
         }
       ]}
     >
@@ -31,8 +38,8 @@ export function RadioButton({
             styles.selectedRb,
             {
               backgroundColor: selected
-                ? '#ffffffff'
-                : '#a1a1a1ff'
+                ? colors.text
+                : colors.textSecondary
             }
           ]}
         />

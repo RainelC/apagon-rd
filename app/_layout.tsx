@@ -1,13 +1,22 @@
-import { Href, Redirect, Tabs } from 'expo-router'
 import {
-  AuthProvider,
-  AuthContext
+  AuthContext,
+  AuthProvider
 } from '@context/AuthContext'
-import { useContext, useEffect } from 'react'
-import * as NavigationBar from 'expo-navigation-bar'
-import { Platform } from 'react-native'
-import { StatusBar } from 'expo-status-bar'
+import {
+  ThemeProvider,
+  useTheme
+} from '@context/ThemeContext'
 import * as Linking from 'expo-linking'
+import * as NavigationBar from 'expo-navigation-bar'
+import { Href, Redirect, Tabs } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
+import { useContext, useEffect } from 'react'
+import { Platform } from 'react-native'
+
+function ThemedStatusBar() {
+  const { isDarkMode } = useTheme()
+  return <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+}
 
 function RootLayoutNav() {
   const auth = useContext(AuthContext)
@@ -19,12 +28,14 @@ function RootLayoutNav() {
       console.log('App launched with URL:', url)
       return <Redirect href={url as Href} />
     }
+    return null
   }
 
   getInitialDeepLink()
 
   if (auth?.loading) return null
-  if (!auth?.token) return <Redirect href={'/access/login' as Href} />
+  if (!auth?.token)
+    return <Redirect href={'/access/login' as Href} />
   return <Redirect href={'/(protected)' as Href} />
 }
 
@@ -35,13 +46,15 @@ export default function RootLayout() {
   }, [])
 
   return (
-    <AuthProvider>
-      <StatusBar style='dark' />
-      <RootLayoutNav />
-      <Tabs
-        screenOptions={{ headerShown: false }}
-        tabBar={() => null}
-      />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ThemedStatusBar />
+        <RootLayoutNav />
+        <Tabs
+          screenOptions={{ headerShown: false }}
+          tabBar={() => null}
+        />
+      </AuthProvider>
+    </ThemeProvider>
   )
 }

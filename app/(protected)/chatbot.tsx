@@ -1,3 +1,8 @@
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
+import { useTheme } from '@context/ThemeContext'
 import { Ionicons } from '@expo/vector-icons'
 import { BotService } from '@services/botService'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -21,6 +26,8 @@ export default function ReluxChatbot() {
   const [inputText, setInputText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const scrollViewRef = useRef<ScrollView>(null)
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
   const scrollToBottom = () => {
     scrollViewRef.current?.scrollToEnd({ animated: true })
@@ -31,8 +38,11 @@ export default function ReluxChatbot() {
   }, [messages])
 
   const callBotAPI = async (userMessage: string) => {
-      const response = await BotService.chat({reply: userMessage, messages: messages})
-      setMessages(response.messages)
+    const response = await BotService.chat({
+      reply: userMessage,
+      messages: messages
+    })
+    setMessages(response.messages)
   }
 
   const handleSend = async () => {
@@ -65,7 +75,10 @@ export default function ReluxChatbot() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[
+        styles.container,
+        { backgroundColor: colors.background }
+      ]}
       behavior={
         Platform.OS === 'ios' ? 'padding' : 'height'
       }
@@ -96,16 +109,23 @@ export default function ReluxChatbot() {
               Tu asistente virtual
             </Text>
           </View>
-          <TouchableOpacity onPress={handleClearChat} style={styles.clearChatButton}>
-            <Ionicons name='trash' size={24} color='#FFF' />
-          </TouchableOpacity> 
+          <TouchableOpacity onPress={handleClearChat}>
+            <Ionicons
+              name='trash'
+              size={24}
+              color='#FFF'
+            />
+          </TouchableOpacity>
         </View>
       </LinearGradient>
 
       {/* Messages Container */}
       <ScrollView
         ref={scrollViewRef}
-        style={styles.messagesContainer}
+        style={[
+          styles.messagesContainer,
+          { backgroundColor: colors.background }
+        ]}
         contentContainerStyle={styles.messagesContent}
         onContentSizeChange={scrollToBottom}
       >
@@ -142,7 +162,13 @@ export default function ReluxChatbot() {
                 styles.messageBubble,
                 message.role === 'user'
                   ? styles.userBubble
-                  : styles.botBubble
+                  : [
+                      styles.botBubble,
+                      {
+                        backgroundColor:
+                          colors.cardBackground
+                      }
+                    ]
               ]}
             >
               <Text
@@ -150,7 +176,7 @@ export default function ReluxChatbot() {
                   styles.messageText,
                   message.role === 'user'
                     ? styles.userText
-                    : styles.botText
+                    : { color: colors.textSecondary }
                 ]}
               >
                 {message.content}
@@ -194,14 +220,28 @@ export default function ReluxChatbot() {
           </View>
         )}
       </ScrollView>
-      <View style={styles.inputContainer}>
+      <View
+        style={[
+          styles.inputContainer,
+          {
+            backgroundColor: colors.background,
+            borderTopColor: colors.border
+          }
+        ]}
+      >
         <View style={styles.inputWrapper}>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.cardBackground,
+                color: colors.text
+              }
+            ]}
             value={inputText}
             onChangeText={setInputText}
             placeholder='Escribe tu mensaje...'
-            placeholderTextColor='#9CA3AF'
+            placeholderTextColor={colors.textSecondary}
             multiline
             maxLength={500}
             editable={!isTyping}
@@ -247,8 +287,7 @@ export default function ReluxChatbot() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#F3F4F6'
+    flex: 1
   },
   header: {
     paddingTop: Platform.OS === 'ios' ? 50 : 40,
@@ -263,7 +302,7 @@ const styles = StyleSheet.create({
   headerContent: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   avatarContainer: {
     width: 48,
@@ -287,8 +326,7 @@ const styles = StyleSheet.create({
     color: '#E0E7FF'
   },
   messagesContainer: {
-    flex: 1,
-    backgroundColor: '#F9FAFB'
+    flex: 1
   },
   messagesContent: {
     padding: 16
@@ -334,7 +372,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 4
   },
   botBubble: {
-    backgroundColor: '#FFF',
     borderTopLeftRadius: 4
   },
   messageText: {
@@ -343,9 +380,6 @@ const styles = StyleSheet.create({
   },
   userText: {
     color: '#FFF'
-  },
-  botText: {
-    color: '#1F2937'
   },
   timestamp: {
     fontSize: 11,
@@ -372,11 +406,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#9CA3AF'
   },
   inputContainer: {
-    backgroundColor: '#FFF',
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 16
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -386,12 +418,10 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 44,
     maxHeight: 100,
-    backgroundColor: '#F3F4F6',
     borderRadius: 22,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 15,
-    color: '#1F2937',
     marginRight: 8
   },
   sendButton: {
@@ -408,7 +438,5 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center'
-  },
-  clearChatButton: {//boarar
-  },
+  }
 })

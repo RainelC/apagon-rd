@@ -10,10 +10,15 @@ import {
   View
 } from 'react-native'
 import ReportItem from '../../src/components/report'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '../../src/constants/colors'
 import { AuthContext } from '../../src/context/AuthContext'
+import { useTheme } from '../../src/context/ThemeContext'
 import { ReportService } from '../../src/services/reportService'
 import { ReportModel } from '../../src/types/Report'
-import { decodeJWT, getUserIdFromToken } from '../../src/utils/jwtDecoder'
+import { getUserIdFromToken } from '../../src/utils/jwtDecoder'
 
 type FilterType = 'ACTIVE' | 'RESOLVER'
 
@@ -23,6 +28,8 @@ export default function MyReports() {
   const [loading, setLoading] = useState(true)
   const [activeFilter, setActiveFilter] =
     useState<FilterType>('ACTIVE')
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
   useFocusEffect(
     useCallback(() => {
@@ -76,21 +83,38 @@ export default function MyReports() {
     }
   }
   return (
-    <View style={styles.container}>
-      <View style={styles.filterContainer}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.background }
+      ]}
+    >
+      <View
+        style={[
+          styles.filterContainer,
+          {
+            borderBottomColor: colors.secondary,
+            backgroundColor: colors.background
+          }
+        ]}
+      >
         <TouchableOpacity
           style={[
             styles.filterTab,
-            activeFilter === 'ACTIVE' &&
-              styles.filterTabActive
+            activeFilter === 'ACTIVE' && [
+              styles.filterTabActive,
+              { borderBottomColor: colors.primary }
+            ]
           ]}
           onPress={() => setActiveFilter('ACTIVE')}
         >
           <Text
             style={[
               styles.filterText,
-              activeFilter === 'ACTIVE' &&
-                styles.filterTextActive
+              activeFilter === 'ACTIVE' && [
+                styles.filterTextActive,
+                { color: colors.primary }
+              ]
             ]}
           >
             Activos
@@ -99,16 +123,20 @@ export default function MyReports() {
         <TouchableOpacity
           style={[
             styles.filterTab,
-            activeFilter === 'RESOLVER' &&
-              styles.filterTabActive
+            activeFilter === 'RESOLVER' && [
+              styles.filterTabActive,
+              { borderBottomColor: colors.primary }
+            ]
           ]}
           onPress={() => setActiveFilter('RESOLVER')}
         >
           <Text
             style={[
               styles.filterText,
-              activeFilter === 'RESOLVER' &&
-                styles.filterTextActive
+              activeFilter === 'RESOLVER' && [
+                styles.filterTextActive,
+                { color: colors.primary }
+              ]
             ]}
           >
             Resueltos
@@ -151,29 +179,13 @@ export default function MyReports() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5'
-  },
-  header: {
-    backgroundColor: '#FFFFFF',
-    paddingTop: 50,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0'
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#000000'
+    flex: 1
   },
   filterContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0'
+    borderBottomWidth: 1
   },
   filterTab: {
     flex: 1,
@@ -181,8 +193,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   filterTabActive: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#007AFF'
+    borderBottomWidth: 2
   },
   filterText: {
     fontSize: 16,
@@ -190,7 +201,6 @@ const styles = StyleSheet.create({
     fontWeight: '500'
   },
   filterTextActive: {
-    color: '#007AFF',
     fontWeight: '600'
   },
   scrollView: {

@@ -1,6 +1,10 @@
 import { CurvedHeader } from '@components/CurvedHeader'
 import { Input } from '@components/Input'
-import { COLORS } from '@constants/colors'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
+import { useTheme } from '@context/ThemeContext'
 import { useForm } from '@hooks/useForm'
 import { AuthService } from '@services/authService'
 import { AxiosError } from 'axios'
@@ -29,6 +33,8 @@ export default function LoginScreen() {
 
   const { signIn } = useContext(AuthContext)!
   const [isLoading, setIsLoading] = useState(false)
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
   const handleLogin = async () => {
     try {
@@ -79,7 +85,10 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView
-      style={styles.container}
+      style={[
+        styles.container,
+        { backgroundColor: colors.background }
+      ]}
       edges={['top']}
     >
       <KeyboardAvoidingView
@@ -140,7 +149,10 @@ export default function LoginScreen() {
             />
             <Link
               href={'/access/forgot-passwd' as Href}
-              style={styles.forgetPasswd}
+              style={[
+                styles.forgetPasswd,
+                { color: colors.primary }
+              ]}
             >
               ¿Olvidaste tu contraseña?
             </Link>
@@ -149,6 +161,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             style={[
               styles.loginButton,
+              { backgroundColor: colors.primary },
               (isLoading || !valid) &&
                 styles.loginButtonDisabled
             ]}
@@ -168,7 +181,12 @@ export default function LoginScreen() {
               href={'/access/register' as Href}
               replace
             >
-              <Text style={styles.signupLink}>
+              <Text
+                style={[
+                  styles.signupLink,
+                  { color: colors.primary }
+                ]}
+              >
                 Registrate.
               </Text>
             </Link>
@@ -181,8 +199,7 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#ffffffff'
+    flex: 1
   },
   content: {
     flex: 1
@@ -198,7 +215,6 @@ const styles = StyleSheet.create({
     gap: 16
   },
   loginButton: {
-    backgroundColor: COLORS.primary,
     height: 56,
     borderRadius: 12,
     alignItems: 'center',
@@ -224,12 +240,10 @@ const styles = StyleSheet.create({
   },
   signupLink: {
     fontSize: 14,
-    color: COLORS.primary,
     fontWeight: '600'
   },
   forgetPasswd: {
     fontSize: 14,
-    color: COLORS.primary,
     textAlign: 'right'
   }
 })

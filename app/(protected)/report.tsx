@@ -1,6 +1,10 @@
 import ReportMap from '@components/ReportMap'
-import { COLORS } from '@constants/colors'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
 import { AuthContext } from '@context/AuthContext'
+import { useTheme } from '@context/ThemeContext'
 import { Ionicons } from '@expo/vector-icons'
 import { useForm } from '@hooks/useForm'
 import { ReportService } from '@services/reportService'
@@ -31,6 +35,8 @@ import { AddReport } from '../../src/types/Report'
 
 export default function Report() {
   const auth = useContext(AuthContext)
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
   const { lat, lng } = useLocalSearchParams<{
     lat: string
@@ -148,14 +154,33 @@ export default function Report() {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={[
+        styles.container,
+        { backgroundColor: colors.background }
+      ]}
+    >
       <View style={styles.content}>
         <View style={styles.formGroup}>
-          <Text style={[styles.label, styles.zeroMarginTop]}>Descripción</Text>
+          <Text
+            style={[
+              styles.label,
+              styles.zeroMarginTop,
+              { color: colors.text }
+            ]}
+          >
+            Descripción
+          </Text>
           <TextInput
-            style={styles.textarea}
+            style={[
+              styles.textarea,
+              {
+                backgroundColor: colors.inputBackground,
+                color: colors.text
+              }
+            ]}
             placeholder='Describe la avería detalladamente...'
-            placeholderTextColor={COLORS.gray}
+            placeholderTextColor={colors.secondary}
             value={form.description}
             onChangeText={(text) =>
               setField('description', text)
@@ -165,15 +190,21 @@ export default function Report() {
           />
         </View>
         <View style={styles.formGroup}>
-          <Text style={styles.label}>
+          <Text
+            style={[styles.label, { color: colors.text }]}
+          >
             Estado de la energía
           </Text>
           <View style={styles.selectContainer}>
             <TouchableOpacity
               style={[
                 styles.selectOption,
-                form.powerStatus === 'POWER' &&
-                  styles.selectOptionActive
+                isDarkMode && { borderColor: '#444' },
+                { backgroundColor: colors.inputBackground },
+                form.powerStatus === 'POWER' && [
+                  styles.selectOptionActive,
+                  { backgroundColor: colors.primary }
+                ]
               ]}
               onPress={() =>
                 setField('powerStatus', 'POWER')
@@ -182,6 +213,7 @@ export default function Report() {
               <Text
                 style={[
                   styles.selectOptionText,
+                  { color: colors.textSecondary },
                   form.powerStatus === 'POWER' &&
                     styles.selectOptionTextActive
                 ]}
@@ -192,8 +224,12 @@ export default function Report() {
             <TouchableOpacity
               style={[
                 styles.selectOption,
-                form.powerStatus === 'NO_POWER' &&
-                  styles.selectOptionActive
+                isDarkMode && { borderColor: '#444' },
+                { backgroundColor: colors.inputBackground },
+                form.powerStatus === 'NO_POWER' && [
+                  styles.selectOptionActive,
+                  { backgroundColor: colors.primary }
+                ]
               ]}
               onPress={() =>
                 setField('powerStatus', 'NO_POWER')
@@ -202,6 +238,7 @@ export default function Report() {
               <Text
                 style={[
                   styles.selectOptionText,
+                  { color: colors.textSecondary },
                   form.powerStatus === 'NO_POWER' &&
                     styles.selectOptionTextActive
                 ]}
@@ -215,18 +252,26 @@ export default function Report() {
           onPress={pickImage}
           style={[
             styles.imagePicker,
+            {
+              backgroundColor: colors.inputBackground,
+              borderColor: colors.text
+            },
             form.photoUrl && {
-              borderColor: COLORS.primary,
-              backgroundColor: '#e0f7ff'
+              borderColor: colors.primary,
+              backgroundColor: isDarkMode
+                ? '#003366'
+                : '#e0f7ff'
             }
           ]}
         >
           <Ionicons
             name='image-outline'
             size={24}
-            color='black'
+            color={colors.text}
           />
-          <Text>Adjuntar fotos o video (opcional)</Text>
+          <Text style={{ color: colors.text }}>
+            Adjuntar fotos o video (opcional)
+          </Text>
         </TouchableOpacity>
 
         <View>
@@ -234,6 +279,8 @@ export default function Report() {
             latitude={form.latitude}
             longitude={form.longitude}
             touchControl={false}
+            canOpenInMaps={false}
+            isDarkMode={isDarkMode}
           />
         </View>
 
@@ -241,6 +288,7 @@ export default function Report() {
           <TouchableOpacity
             style={[
               styles.submitButton,
+              { backgroundColor: colors.primary },
               loading && styles.submitButtonDisabled
             ]}
             onPress={handleSubmit}
@@ -279,8 +327,7 @@ const styles = StyleSheet.create({
   label: {
     marginVertical: 15,
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333'
+    fontWeight: '600'
   },
   coordinatesContainer: {
     flexDirection: 'row',
@@ -304,7 +351,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   selectOptionActive: {
-    backgroundColor: '#007AFF',
     borderColor: '#007AFF'
   },
   selectOptionText: {
@@ -336,7 +382,6 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     flex: 1,
-    backgroundColor: '#007AFF',
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 8,

@@ -1,20 +1,27 @@
+import { GoBackButton } from '@components/GoBackButton'
 import { Input } from '@components/Input'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
+import { useTheme } from '@context/ThemeContext'
 import { useForm } from '@hooks/useForm'
+import { AuthService } from '@services/authService'
+import {
+  useLocalSearchParams,
+  useRouter
+} from 'expo-router'
 import { useState } from 'react'
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
+  Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
-  Alert,
-  Image
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native'
-import { AuthService } from '@services/authService'
-import { COLORS } from '@constants/colors'
-import { GoBackButton } from '@components/GoBackButton'
-import { Href, Redirect, useLocalSearchParams } from 'expo-router'
 
 const authService = new AuthService()
 
@@ -27,18 +34,25 @@ function RecoverScreen() {
       token: (token as string) || ' '
     })
 
+  const router = useRouter()
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
+
   const [isLoading, setIsLoading] = useState(false)
 
   const handleForgotPasswd = async () => {
     setIsLoading(true)
     form.token = token as string
     const response = await authService.recoverPasswd(form)
+
     if (response.status === 200) {
       Alert.alert(
         '¡Contraseña cambiada correctamente!',
         'Ya puedes iniciar sesión con tu nueva contraseña.'
       )
-      return <Redirect href={'access/forgot-passwd' as Href} />
+      setIsLoading(false)
+      router.push('/access/login')
+      return
     }
 
     if (response.status === 403) {
@@ -111,7 +125,10 @@ function RecoverScreen() {
       behavior={
         Platform.OS === 'ios' ? 'padding' : 'height'
       }
-      style={styles.container}
+      style={[
+        styles.container,
+        { backgroundColor: colors.background }
+      ]}
     >
       <View style={styles.screen}>
         <View style={styles.header}>
@@ -194,6 +211,9 @@ function RecoverScreen() {
         <TouchableOpacity
           style={[
             styles.button,
+            {
+              backgroundColor: colors.primary
+            },
             (isLoading || !valid) && styles.buttonDisabled
           ]}
           onPress={handleForgotPasswd}
@@ -210,8 +230,7 @@ function RecoverScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: COLORS.background
+    flex: 1
   },
   screen: {
     paddingHorizontal: 24,
@@ -236,22 +255,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 600
   },
-  anotherWayText: {
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: 600,
-    textDecorationLine: 'underline',
-    color: COLORS.primary
-  },
   image: {
     width: 200,
     height: 200,
-    color: COLORS.primary,
     borderRadius: 100,
     margin: 15
   },
   button: {
-    backgroundColor: COLORS.primary,
     height: 56,
     borderRadius: 12,
     alignItems: 'center',

@@ -6,6 +6,8 @@ import {
   View
 } from 'react-native'
 import { ReportModel } from '../types/Report'
+import { useTheme } from '@context/ThemeContext'
+import { DARK_COLORS, LIGHT_COLORS } from '@constants/colors'
 
 interface ReportItemProps {
   report: ReportModel
@@ -67,6 +69,9 @@ export default function ReportItem({
   const statusText = getStatusText(report.status)
   const formattedDate = formatDate(report.createdAt)
 
+  const {isDarkMode} = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
+
   const handlePress = () => {
     router.push({
       pathname: '/(protected)/reportDetails',
@@ -76,15 +81,17 @@ export default function ReportItem({
 
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.cardBackground }]}
       onPress={handlePress}
       activeOpacity={0.7}
     >
       <View>
-        <Text style={styles.title}>
+        <Text style={[styles.title, { color: colors.text }]}>
           {report.description}
         </Text>
-        <Text style={styles.date}>{formattedDate}</Text>
+        <Text style={[styles.date, { color: colors.textSecondary }]}>
+          {formattedDate}
+        </Text>
       </View>
       <View style={styles.statusContainer}>
         <View
@@ -108,12 +115,10 @@ export default function ReportItem({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
     padding: 16,
     marginVertical: 8,
     marginHorizontal: 16,
     borderRadius: 8,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1
@@ -128,7 +133,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
     marginBottom: 8
   },
   date: {

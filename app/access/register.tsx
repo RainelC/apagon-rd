@@ -1,6 +1,15 @@
 import { Input } from '@components/Input'
+import { RadioButton } from '@components/RadioInput'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
+import { useTheme } from '@context/ThemeContext'
 import { useForm } from '@hooks/useForm'
+import { AuthService } from '@services/authService'
 import { Href, Link, router } from 'expo-router'
+import { Check } from 'lucide-react-native'
+import { useMemo, useState } from 'react'
 import {
   Alert,
   KeyboardAvoidingView,
@@ -12,12 +21,6 @@ import {
   TouchableOpacity,
   View
 } from 'react-native'
-
-import { RadioButton } from '@components/RadioInput'
-import { COLORS } from '@constants/colors'
-import { AuthService } from '@services/authService'
-import { Check } from 'lucide-react-native'
-import { useMemo, useState } from 'react'
 import type { CreateUser } from '../../src/types/createUser'
 import type { DocumentType } from '../../src/types/documentType'
 
@@ -42,6 +45,8 @@ export default function Register() {
     documentNumber: ''
   })
   const [loading, setLoading] = useState(false)
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
   const documentTypeChange = (type: DocumentType) => {
     setFields({
@@ -104,13 +109,25 @@ export default function Register() {
       behavior={
         Platform.OS === 'ios' ? 'padding' : 'height'
       }
-      style={styles.container}
+      style={[
+        styles.container,
+        { backgroundColor: colors.background }
+      ]}
     >
       <ScrollView>
         <View style={styles.screen}>
           <View style={styles.header}>
-            <Text style={styles.title}>Registrate</Text>
-            <Text style={styles.subtle}>
+            <Text
+              style={[styles.title, { color: colors.text }]}
+            >
+              Registrate
+            </Text>
+            <Text
+              style={[
+                styles.subtle,
+                { color: colors.textSecondary }
+              ]}
+            >
               Crea una cuenta para continuar.
             </Text>
           </View>
@@ -297,6 +314,7 @@ export default function Register() {
             <TouchableOpacity
               style={[
                 styles.button,
+                { backgroundColor: colors.primary },
                 (loading || !valid) && styles.buttonDisabled
               ]}
               onPress={onSubmit}
@@ -315,7 +333,12 @@ export default function Register() {
               href={'/access/login' as Href}
               replace
             >
-              <Text style={styles.loginLink}>
+              <Text
+                style={[
+                  styles.loginLink,
+                  { color: colors.primary }
+                ]}
+              >
                 Inicia sesion.
               </Text>
             </Link>
@@ -328,8 +351,7 @@ export default function Register() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: COLORS.background
+    flex: 1
   },
   screen: {
     flex: 1,
@@ -345,8 +367,7 @@ const styles = StyleSheet.create({
     fontWeight: '600'
   },
   subtle: {
-    fontSize: 14,
-    color: '#666'
+    fontSize: 14
   },
   inputsContainer: {
     gap: 8
@@ -359,7 +380,6 @@ const styles = StyleSheet.create({
     flex: 1
   },
   button: {
-    backgroundColor: COLORS.primary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -384,7 +404,6 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     fontSize: 14,
-    color: COLORS.primary,
     fontWeight: '600'
   }
 })
@@ -447,18 +466,25 @@ const RequirementItem = ({
   met,
   isLongText
 }: RequirementItemProps) => {
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
+
   return (
     <View style={stylesPassword.requirementRow}>
       <View
         style={[
           stylesPassword.checkbox,
+          {
+            borderColor: colors.secondary,
+            backgroundColor: colors.background
+          },
           met && stylesPassword.checkboxMet
         ]}
       >
         {met && (
           <Check
             size={14}
-            color='#FFFFFF'
+            color={colors.text}
             strokeWidth={3}
           />
         )}
@@ -466,6 +492,9 @@ const RequirementItem = ({
       <Text
         style={[
           stylesPassword.requirementText,
+          {
+            color: colors.text
+          },
           met && stylesPassword.requirementTextMet,
           isLongText && stylesPassword.requirementTextLong
         ]}
@@ -491,8 +520,6 @@ const stylesPassword = StyleSheet.create({
     height: 18,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: '#D1D5DB',
-    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2
@@ -504,7 +531,6 @@ const stylesPassword = StyleSheet.create({
   requirementText: {
     flex: 1,
     fontSize: 14,
-    color: '#000000',
     lineHeight: 20
   },
   requirementTextMet: {
@@ -524,6 +550,9 @@ const DocumentTypeInput = ({
   selected,
   onChange
 }: DocumentTypeInputProps) => {
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
+
   const selectedType = selected === 'ID_CARD'
 
   const handleSelect = (type: DocumentType) => {
@@ -542,7 +571,9 @@ const DocumentTypeInput = ({
           disabled={selectedType}
         >
           <RadioButton selected={selectedType} />
-          <Text>Cédula de Identidad</Text>
+          <Text style={{ color: colors.text }}>
+            Cédula de Identidad
+          </Text>
         </Pressable>
         <Pressable
           style={stylesRadio.input}
@@ -550,7 +581,9 @@ const DocumentTypeInput = ({
           disabled={!selectedType}
         >
           <RadioButton selected={!selectedType} />
-          <Text>Pasaporte</Text>
+          <Text style={{ color: colors.text }}>
+            Pasaporte
+          </Text>
         </Pressable>
       </View>
     </View>

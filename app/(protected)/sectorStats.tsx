@@ -1,6 +1,10 @@
 import { GoBackButton } from '@components/GoBackButton'
-import { COLORS } from '@constants/colors'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
 import { AuthContext } from '@context/AuthContext'
+import { useTheme } from '@context/ThemeContext'
 import {
   Ionicons,
   MaterialCommunityIcons
@@ -25,6 +29,9 @@ export default function SectorStats() {
   const { sectorId } = useLocalSearchParams<{
     sectorId: string
   }>()
+
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
   const [stats, setStats] =
     useState<SectorUptimeHistory | null>(null)
@@ -86,24 +93,24 @@ export default function SectorStats() {
     : 0
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       <SafeAreaView
-        style={styles.safeArea}
+        style={{ backgroundColor: colors.background }}
         edges={['top']}
       />
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <GoBackButton />
-        <Text style={styles.title}>Estadísticas</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Estadísticas</Text>
         <View style={{ width: 50 }} />
       </View>
 
       <View style={styles.content}>
         {/* Header Section */}
         <View style={styles.headerSection}>
-          <Text style={styles.pageTitle}>
+          <Text style={[styles.pageTitle, { color: colors.textSecondary }]}>
             Estadísticas del sector
           </Text>
-          <Text style={styles.pageSubtitle}>
+          <Text style={[styles.pageSubtitle, { color: colors.textSecondary }]}>
             Aquí te mostramos cuánto tiempo tu sector ha
             pasado sin energía este mes.
           </Text>
@@ -450,7 +457,10 @@ export default function SectorStats() {
             </View>
 
             <TouchableOpacity
-              style={styles.refreshButton}
+              style={[
+                styles.refreshButton,
+                { backgroundColor: colors.primary }
+              ]}
               onPress={loadSectorStats}
             >
               <Ionicons
@@ -474,14 +484,9 @@ export default function SectorStats() {
     </ScrollView>
   )
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
-  },
-  safeArea: {
-    backgroundColor: '#fff'
   },
   header: {
     flexDirection: 'row',
@@ -491,12 +496,10 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0'
   },
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#000000'
   },
   content: {
     padding: 20
@@ -507,12 +510,10 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#333',
     marginBottom: 8
   },
   pageSubtitle: {
     fontSize: 14,
-    color: '#666',
     lineHeight: 20
   },
   loadingContainer: {
@@ -720,7 +721,6 @@ const styles = StyleSheet.create({
     fontWeight: '700'
   },
   refreshButton: {
-    backgroundColor: COLORS.primary,
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 12,

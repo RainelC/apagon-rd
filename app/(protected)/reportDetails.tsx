@@ -1,6 +1,12 @@
 import { GoBackButton } from '@components/GoBackButton'
+import { ImageViewer } from '@components/ImageViewer'
 import ReportMap from '@components/ReportMap'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
 import { AuthContext } from '@context/AuthContext'
+import { useTheme } from '@context/ThemeContext'
 import { useLocalSearchParams } from 'expo-router'
 import { useContext, useEffect, useState } from 'react'
 import {
@@ -15,7 +21,6 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ReportModel } from '../../src/types/Report'
-import { ImageViewer } from '@components/ImageViewer'
 
 export default function ReportDetails() {
   const { reportDetail: reportDetailParam } =
@@ -23,6 +28,8 @@ export default function ReportDetails() {
       reportDetail: string
     }>()
   const auth = useContext(AuthContext)
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
   const [reportDetail, setReportDetail] =
     useState<ReportModel | null>(null)
   const [imageModalVisible, setImageModalVisible] =
@@ -52,10 +59,15 @@ export default function ReportDetails() {
 
   if (!auth || !auth.token) {
     return (
-      <View style={styles.loadingContainer}>
+      <View
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: colors.background }
+        ]}
+      >
         <ActivityIndicator
           size='large'
-          color='#007AFF'
+          color={colors.primary}
         />
       </View>
     )
@@ -63,20 +75,43 @@ export default function ReportDetails() {
 
   if (!reportDetail) {
     return (
-      <View style={styles.container}>
-        <Text>Cargando reporte...</Text>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: colors.background }
+        ]}
+      >
+        <Text style={{ color: colors.text }}>
+          Cargando reporte...
+        </Text>
       </View>
     )
   }
 
   return (
     <SafeAreaView
-      style={styles.container}
+      style={[
+        styles.container,
+        { backgroundColor: colors.background }
+      ]}
       edges={['top']}
     >
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.background,
+            borderBottomColor: colors.border
+          }
+        ]}
+      >
         <GoBackButton />
-        <Text style={styles.headerTitle}>
+        <Text
+          style={[
+            styles.headerTitle,
+            { color: colors.text }
+          ]}
+        >
           Reporte #{reportDetail.id}
         </Text>
         <View style={{ width: 24 }} />
@@ -87,16 +122,31 @@ export default function ReportDetails() {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: colors.text }
+            ]}
+          >
             Descripción
           </Text>
-          <Text style={styles.descriptionText}>
+          <Text
+            style={[
+              styles.descriptionText,
+              { color: colors.textSecondary }
+            ]}
+          >
             {reportDetail.description}
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: colors.text }
+            ]}
+          >
             Estado de la energía
           </Text>
           <View style={styles.powerStatusContainer}>
@@ -111,7 +161,12 @@ export default function ReportDetails() {
                 }
               ]}
             />
-            <Text style={styles.powerStatusText}>
+            <Text
+              style={[
+                styles.powerStatusText,
+                { color: colors.text }
+              ]}
+            >
               {reportDetail.powerStatus === 'POWER'
                 ? 'Con luz'
                 : 'Sin luz'}
@@ -120,7 +175,14 @@ export default function ReportDetails() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Fotos</Text>
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: colors.text }
+            ]}
+          >
+            Fotos
+          </Text>
           {reportDetail.photoUrl ? (
             <View style={styles.photosContainer}>
               <TouchableOpacity
@@ -135,7 +197,12 @@ export default function ReportDetails() {
               </TouchableOpacity>
             </View>
           ) : (
-            <Text style={styles.noDataText}>
+            <Text
+              style={[
+                styles.noDataText,
+                { color: colors.textSecondary }
+              ]}
+            >
               No hay fotos adjuntas
             </Text>
           )}
@@ -146,11 +213,20 @@ export default function ReportDetails() {
           imageUrl={reportDetail?.photoUrl}
         />
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Ubicación</Text>
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: colors.text }
+            ]}
+          >
+            Ubicación
+          </Text>
           <ReportMap
             latitude={reportDetail.latitude.toString()}
             longitude={reportDetail.longitude.toString()}
             touchControl={true}
+            canOpenInMaps={true}
+            isDarkMode={isDarkMode}
           />
         </View>
       </ScrollView>
@@ -160,8 +236,7 @@ export default function ReportDetails() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff'
+    flex: 1
   },
   loadingContainer: {
     flex: 1,
@@ -174,9 +249,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    backgroundColor: '#fff'
+    borderBottomWidth: 1
   },
   backButton: {
     padding: 4
@@ -229,8 +302,7 @@ const styles = StyleSheet.create({
   photo: {
     width: '100%',
     height: 200,
-    borderRadius: 12,
-    backgroundColor: '#f0f0f0'
+    borderRadius: 12
   },
   noDataText: {
     fontSize: 14,

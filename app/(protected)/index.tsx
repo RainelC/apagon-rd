@@ -1,20 +1,44 @@
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
 import { MapWebView } from '@components/MapWebView'
-import { Ionicons,  } from '@expo/vector-icons'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
+import { useTheme } from '@context/ThemeContext'
+import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
-import { COLORS } from '@constants/colors'
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native'
 
 export default function ProtectedIndex() {
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.background }
+      ]}
+    >
       <MapWebView />
-      
-      <TouchableOpacity 
-        style={styles.fab}
+
+      <TouchableOpacity
+        style={[
+          styles.fab,
+          { backgroundColor: colors.primary }
+        ]}
         onPress={() => router.push('/(protected)/chatbot')}
         activeOpacity={0.8}
       >
-        <Ionicons name="chatbubble-ellipses-outline" size={24} color="white" />
+        <Ionicons
+          name='chatbubble-ellipses-outline'
+          size={24}
+          color='white'
+        />
         <Text style={styles.fabText}>Ayuda</Text>
       </TouchableOpacity>
     </View>
@@ -29,7 +53,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     right: 20,
-    backgroundColor: COLORS.primary,
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
@@ -46,6 +69,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     marginLeft: 8,
-    fontSize: 16,
+    fontSize: 16
   }
 })

@@ -13,12 +13,16 @@ interface ReportMapProps {
   latitude: string
   longitude: string
   touchControl: boolean
+  canOpenInMaps: boolean
+  isDarkMode?: boolean
 }
 
 const ReportMap = ({
   latitude,
   longitude,
-  touchControl
+  touchControl,
+  canOpenInMaps,
+  isDarkMode = false
 }: ReportMapProps) => {
   const openInMaps = () => {
     const lat = parseFloat(latitude)
@@ -95,13 +99,18 @@ const ReportMap = ({
     <View style={styles.container}>
       <TouchableOpacity
         activeOpacity={0.9}
-        onPress={openInMaps}
+        onPress={canOpenInMaps ? openInMaps : undefined}
         style={styles.touchable}
       >
         <WebView
           originWhitelist={['*']}
           source={{
-            html: mapHtml(latitude, longitude, touchControl)
+            html: mapHtml(
+              latitude,
+              longitude,
+              touchControl,
+              isDarkMode
+            )
           }}
           scrollEnabled={false}
           style={styles.webview}
@@ -133,7 +142,8 @@ const styles = StyleSheet.create({
 const mapHtml = (
   latitude: string,
   longitude: string,
-  touchControl: boolean
+  touchControl: boolean,
+  isDarkMode: boolean
 ) => `
 <!DOCTYPE html>
 <html>
@@ -152,6 +162,11 @@ const mapHtml = (
         padding: 0;
         height: 100%;
         width: 100%;
+        ${
+          isDarkMode
+            ? 'filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);'
+            : ''
+        }
       }
       .leaflet-control-attribution {
         display: none;
