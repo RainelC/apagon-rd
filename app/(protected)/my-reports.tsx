@@ -1,5 +1,6 @@
+import { useAuth } from '@hooks/useAuth'
 import { useFocusEffect } from 'expo-router'
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
@@ -14,7 +15,6 @@ import {
   DARK_COLORS,
   LIGHT_COLORS
 } from '../../src/constants/colors'
-import { AuthContext } from '../../src/context/AuthContext'
 import { useTheme } from '../../src/context/ThemeContext'
 import { ReportService } from '../../src/services/reportService'
 import { ReportModel } from '../../src/types/Report'
@@ -23,7 +23,7 @@ import { getUserIdFromToken } from '../../src/utils/jwtDecoder'
 type FilterType = 'ACTIVE' | 'RESOLVER'
 
 export default function MyReports() {
-  const auth = useContext(AuthContext)
+  const auth = useAuth()
   const [reports, setReports] = useState<ReportModel[]>([])
   const [loading, setLoading] = useState(true)
   const [activeFilter, setActiveFilter] =
@@ -31,15 +31,7 @@ export default function MyReports() {
   const { isDarkMode } = useTheme()
   const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
-  useFocusEffect(
-    useCallback(() => {
-      if (auth?.token) {
-        loadReports()
-      }
-    }, [auth?.token, activeFilter])
-  )
-
-  const loadReports = async () => {
+  const loadReports = useCallback(async () => {
     if (!auth?.token) return
     try {
       setLoading(true)
@@ -73,7 +65,7 @@ export default function MyReports() {
       } else {
         setReports(fetchedReports)
       }
-    } catch (error) {
+    } catch {
       Alert.alert(
         'Error',
         'No se pudieron cargar los reportes'
@@ -81,7 +73,16 @@ export default function MyReports() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [activeFilter, auth?.token])
+
+  useFocusEffect(
+    useCallback(() => {
+      if (auth?.token) {
+        loadReports()
+      }
+    }, [auth?.token, loadReports])
+  )
+
   return (
     <View
       style={[

@@ -3,7 +3,6 @@ import {
   DARK_COLORS,
   LIGHT_COLORS
 } from '@constants/colors'
-import { AuthContext } from '@context/AuthContext'
 import { useTheme } from '@context/ThemeContext'
 import { Ionicons } from '@expo/vector-icons'
 import { useForm } from '@hooks/useForm'
@@ -15,14 +14,8 @@ import {
   useFocusEffect,
   useLocalSearchParams
 } from 'expo-router'
+import { useCallback, useRef, useState } from 'react'
 import {
-  useCallback,
-  useContext,
-  useRef,
-  useState
-} from 'react'
-import {
-  ActivityIndicator,
   Alert,
   ScrollView,
   StyleSheet,
@@ -34,7 +27,6 @@ import {
 import { AddReport } from '../../src/types/Report'
 
 export default function Report() {
-  const auth = useContext(AuthContext)
   const { isDarkMode } = useTheme()
   const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
@@ -44,7 +36,7 @@ export default function Report() {
   }>()
 
   const [loading, setLoading] = useState(false)
-  const { form, setField, setFields, errors, resetForm } =
+  const { form, setField, setFields,  resetForm } =
     useForm<AddReport>({
       latitude: lat || '',
       longitude: lng || '',
@@ -88,7 +80,7 @@ export default function Report() {
               longitude:
                 location.coords.longitude.toFixed(5)
             })
-          } catch (error) {
+          } catch  {
             Alert.alert(
               'Error',
               'No se pudo obtener la ubicación actual'
@@ -100,16 +92,6 @@ export default function Report() {
       handleLocation()
     }, [lat, lng])
   )
-
-  if (!auth || !auth.token)
-    return (
-      <ActivityIndicator
-        size='large'
-        color='#0000ff'
-      />
-    )
-
-  const { token } = auth
 
   const handleSubmit = async () => {
     if (!form.description.trim()) {
@@ -314,7 +296,7 @@ const styles = StyleSheet.create({
     padding: 20
   },
   textarea: {
-    minHeight: 150,
+    minHeight: 120,
     backgroundColor: '#f0f0f0',
     padding: 15,
     borderRadius: 5,

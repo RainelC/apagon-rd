@@ -3,14 +3,14 @@ import {
   DARK_COLORS,
   LIGHT_COLORS
 } from '@constants/colors'
-import { AuthContext } from '@context/AuthContext'
-import { useTheme } from '@context/ThemeContext'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useContext, useState } from 'react'
+import { useAuth } from '@hooks/useAuth'
+import { useTheme } from '@context/ThemeContext'
+import { Tabs } from 'expo-router'
+import { useState } from 'react'
 import {
   ActivityIndicator,
   ScrollView,
-  StyleSheet,
   Switch,
   Text,
   TouchableOpacity,
@@ -18,7 +18,21 @@ import {
 } from 'react-native'
 
 export default function Profile() {
-  const auth = useContext(AuthContext)
+  const auth = useAuth()
+  const { signOut } = auth
+
+  const [name, setName] = useState(
+    // user ? `${user.firstName} ${user.lastName}` : ''
+    ''
+  )
+  const [phone, setPhone] = useState('')
+  // const [email, setEmail] = useState(user?.email || '')
+  const [email, setEmail] = useState('')
+
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
+
+
   if (!auth)
     return (
       <ActivityIndicator
@@ -27,16 +41,6 @@ export default function Profile() {
       />
     )
 
-  const { user, signOut } = auth
-  const { isDarkMode, toggleTheme } = useTheme()
-  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
-
-  const [name, setName] = useState(
-    user ? `${user.firstName} ${user.lastName}` : ''
-  )
-  const [phone, setPhone] = useState('')
-  const [email, setEmail] = useState(user?.email || '')
-
   return (
     <View
       style={[
@@ -44,6 +48,26 @@ export default function Profile() {
         { backgroundColor: colors.background }
       ]}
     >
+      <Tabs.Screen
+        options={{
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => {
+                /* handle save action */
+              }}
+            >
+              <Text
+                style={{
+                  color: '#007AFF',
+                  marginRight: 20
+                }}
+              >
+                Guardar
+              </Text>
+            </TouchableOpacity>
+          )
+        }}
+      />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}

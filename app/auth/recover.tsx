@@ -7,10 +7,7 @@ import {
 import { useTheme } from '@context/ThemeContext'
 import { useForm } from '@hooks/useForm'
 import { AuthService } from '@services/authService'
-import {
-  useLocalSearchParams,
-  useRouter
-} from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { useState } from 'react'
 import {
   Alert,
@@ -34,7 +31,6 @@ function RecoverScreen() {
       token: (token as string) || ' '
     })
 
-  const router = useRouter()
   const { isDarkMode } = useTheme()
   const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
@@ -55,20 +51,39 @@ function RecoverScreen() {
       return
     }
 
-    if (response.status === 403) {
-      Alert.alert(
-        'Enlace de recuperación invalido',
-        'El enlace para restablecer la contraseña no es válido o ha caducado, posiblemente porque ya se había utilizado.'
-      )
-    }
+    try {
+      form.token = token as string
+      const response = await authService.recoverPasswd(form)
 
-    if (response.status === 400) {
-      Alert.alert(
-        'Algo salió mal',
-        'Inténtelo de nuevo más tarde'
-      )
+      if (response.status === 200) {
+        Alert.alert(
+          '¡Contraseña cambiada correctamente!',
+          'Ya puedes iniciar sesión con tu nueva contraseña.'
+        )
+        router.push('/access/forgot-passwd')
+        return
+      }
+
+      if (response.status === 403) {
+        Alert.alert(
+          'Enlace de recuperación invalido',
+          'El enlace para restablecer la contraseña no es válido o ha caducado, posiblemente porque ya se había utilizado.'
+        )
+        return
+      }
+
+      if (response.status === 400) {
+        Alert.alert(
+          'Algo salió mal',
+          'Inténtelo de nuevo más tarde'
+        )
+        return
+      }
+    } catch {
+      Alert.alert('Error', 'Ocurrió un error inesperado')
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   const isValidForm = (): boolean => {
@@ -156,26 +171,24 @@ function RecoverScreen() {
             }
             label={'Contraseña'}
             placeholder={'*********'}
-            props={{
-              secureTextEntry: true,
-              autoCapitalize: 'none',
-              onChange: () => {
-                if (form.password.includes(' '))
-                  return setError(
-                    'password',
-                    'La contraseña no debe contener espacios'
-                  )
-                clearError('password')
-              },
-              onEndEditing: () => {
-                if (!form.password)
-                  return setError(
-                    'password',
-                    'La contraseña es obligatoria'
-                  )
+            secureTextEntry={true}
+            autoCapitalize={'none'}
+            onChange={() => {
+              if (form.password.includes(' '))
+                return setError(
+                  'password',
+                  'La contraseña no debe contener espacios'
+                )
+              clearError('password')
+            }}
+            onEndEditing={() => {
+              if (!form.password)
+                return setError(
+                  'password',
+                  'La contraseña es obligatoria'
+                )
 
-                clearError('password')
-              }
+              clearError('password')
             }}
           />
           <Input
@@ -186,25 +199,23 @@ function RecoverScreen() {
             }
             label={'Confirmar contraseña'}
             placeholder={'*********'}
-            props={{
-              secureTextEntry: true,
-              autoCapitalize: 'none',
-              onEndEditing: () => {
-                if (!form.repeated)
-                  return setError(
-                    'repeated',
-                    'Debe repetir la contraseña'
-                  )
-                clearError('repeated')
-              },
-              onChange: () => {
-                if (form.password !== form.repeated)
-                  return setError(
-                    'repeated',
-                    'Las contraseñas deben coincidir'
-                  )
-                clearError('repeated')
-              }
+            secureTextEntry={true}
+            autoCapitalize='none'
+            onEndEditing={() => {
+              if (!form.repeated)
+                return setError(
+                  'repeated',
+                  'Debe repetir la contraseña'
+                )
+              clearError('repeated')
+            }}
+            onChange={() => {
+              if (form.password !== form.repeated)
+                return setError(
+                  'repeated',
+                  'Las contraseñas deben coincidir'
+                )
+              clearError('repeated')
             }}
           />
         </View>

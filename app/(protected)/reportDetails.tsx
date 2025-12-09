@@ -5,12 +5,10 @@ import {
   DARK_COLORS,
   LIGHT_COLORS
 } from '@constants/colors'
-import { AuthContext } from '@context/AuthContext'
 import { useTheme } from '@context/ThemeContext'
 import { useLocalSearchParams } from 'expo-router'
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
-  ActivityIndicator,
   Alert,
   Image,
   ScrollView,
@@ -27,7 +25,6 @@ export default function ReportDetails() {
     useLocalSearchParams<{
       reportDetail: string
     }>()
-  const auth = useContext(AuthContext)
   const { isDarkMode } = useTheme()
   const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
   const [reportDetail, setReportDetail] =
@@ -40,7 +37,7 @@ export default function ReportDetails() {
       try {
         const parsedReport = JSON.parse(reportDetailParam)
         setReportDetail(parsedReport)
-      } catch (error) {
+      } catch {
         Alert.alert(
           'Error',
           'No se pudo cargar el detalle del reporte'
@@ -55,22 +52,6 @@ export default function ReportDetails() {
 
   const closeImage = () => {
     setImageModalVisible(false)
-  }
-
-  if (!auth || !auth.token) {
-    return (
-      <View
-        style={[
-          styles.loadingContainer,
-          { backgroundColor: colors.background }
-        ]}
-      >
-        <ActivityIndicator
-          size='large'
-          color={colors.primary}
-        />
-      </View>
-    )
   }
 
   if (!reportDetail) {

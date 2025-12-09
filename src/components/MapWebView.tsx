@@ -1,17 +1,11 @@
-import { AuthContext } from '@context/AuthContext'
 import { useTheme } from '@context/ThemeContext'
 import { MaterialIcons } from '@expo/vector-icons'
+import { useAuth } from '@hooks/useAuth'
 import { MapService } from '@services/mapService'
 import * as Location from 'expo-location'
 import { useRouter } from 'expo-router'
+import { useEffect, useRef, useState } from 'react'
 import {
-  useContext,
-  useEffect,
-  useRef,
-  useState
-} from 'react'
-import {
-  ActivityIndicator,
   Alert,
   PermissionsAndroid,
   Platform,
@@ -28,38 +22,15 @@ import { Sector } from '../types/Sectors'
 import { DARK_COLORS, LIGHT_COLORS } from '@constants/colors'
 
 const MapWebView = () => {
-  const auth = useContext(AuthContext)
   const { isDarkMode } = useTheme()
   const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
+  const { token } = useAuth()
   const router = useRouter()
   const [sectors, setSectors] = useState<Sector[]>([])
   const webviewRef = useRef<WebView>(null)
 
   const [location, setLocation] =
     useState<Location.LocationObject | null>(null)
-  const [errorMsg, setErrorMsg] = useState<string | null>(
-    null
-  )
-
-  // useEffect(() => {
-  //   async function getCurrentLocation() {
-  //     let { status } =
-  //       await Location.requestForegroundPermissionsAsync()
-  //     if (status !== 'granted') {
-  //       setErrorMsg(
-  //         'Permission to access location was denied'
-  //       )
-  //       return
-  //     }
-
-  //     let location = await Location.getCurrentPositionAsync(
-  //       {}
-  //     )
-  //     setLocation(location)
-  //   }
-
-  //   getCurrentLocation()
-  // }, [])
 
   useEffect(() => {
     const requestPermission = async () => {
@@ -85,14 +56,13 @@ const MapWebView = () => {
   useEffect(() => {
     const fetchSectorsWithPolygons = async () => {
       try {
-        if (!auth || !auth.token) return
+        if (!token) return
 
-        const { token } = auth
         const sectors = await MapService.getSectorsGeoJson(
           token
         )
         setSectors(sectors)
-      } catch (error) {
+      } catch {
         Alert.alert(
           'Error',
           'No se pudieron cargar los sectores'
@@ -100,15 +70,7 @@ const MapWebView = () => {
       }
     }
     fetchSectorsWithPolygons()
-  }, [auth])
-
-  if (!auth || !auth.token)
-    return (
-      <ActivityIndicator
-        size='large'
-        color='#0000ff'
-      />
-    )
+  }, [token])
 
   const onMessage = (event: WebViewMessageEvent) => {
     try {
@@ -131,7 +93,7 @@ const MapWebView = () => {
           }
         })
       }
-    } catch (e) {
+    } catch {
       Alert.alert('Error', 'Ocurrió un error')
     }
   }

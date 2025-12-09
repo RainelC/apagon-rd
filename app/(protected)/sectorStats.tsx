@@ -3,7 +3,6 @@ import {
   DARK_COLORS,
   LIGHT_COLORS
 } from '@constants/colors'
-import { AuthContext } from '@context/AuthContext'
 import { useTheme } from '@context/ThemeContext'
 import {
   Ionicons,
@@ -11,7 +10,7 @@ import {
 } from '@expo/vector-icons'
 import { MapService } from '@services/mapService'
 import { useLocalSearchParams } from 'expo-router'
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
@@ -25,7 +24,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { SectorUptimeHistory } from '../../src/types/Sectors'
 
 export default function SectorStats() {
-  const auth = useContext(AuthContext)
   const { sectorId } = useLocalSearchParams<{
     sectorId: string
   }>()
@@ -37,12 +35,8 @@ export default function SectorStats() {
     useState<SectorUptimeHistory | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadSectorStats()
-  }, [sectorId])
-
-  const loadSectorStats = async () => {
-    if (!auth?.token || !sectorId) return
+  const loadSectorStats = useCallback(async () => {
+    if (!sectorId) return
 
     try {
       setLoading(true)
@@ -64,7 +58,7 @@ export default function SectorStats() {
       )
 
       setStats(data)
-    } catch (error) {
+    } catch {
       Alert.alert(
         'Error',
         'No se pudieron cargar las estadísticas del sector'
@@ -72,16 +66,11 @@ export default function SectorStats() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [sectorId])
 
-  if (!auth || !auth.token) {
-    return (
-      <ActivityIndicator
-        size='large'
-        color='#0000ff'
-      />
-    )
-  }
+  useEffect(() => {
+    loadSectorStats()
+  }, [loadSectorStats, sectorId])
 
   // Calculate derived values
   const downtimeHours = stats
