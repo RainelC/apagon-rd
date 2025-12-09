@@ -11,6 +11,7 @@ import { useState } from 'react'
 import {
   ActivityIndicator,
   ScrollView,
+  StyleSheet,
   Switch,
   Text,
   TouchableOpacity,
@@ -29,7 +30,7 @@ export default function Profile() {
   // const [email, setEmail] = useState(user?.email || '')
   const [email, setEmail] = useState('')
 
-  const { isDarkMode } = useTheme()
+  const { isDarkMode, toggleTheme} = useTheme()
   const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
 
@@ -40,6 +41,7 @@ export default function Profile() {
         color='#0000ff'
       />
     )
+
 
   return (
     <View
