@@ -1,3 +1,7 @@
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
 import { useTheme } from '@context/ThemeContext'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAuth } from '@hooks/useAuth'
@@ -19,7 +23,6 @@ import {
 } from 'react-native-webview'
 import { Double } from 'react-native/Libraries/Types/CodegenTypes'
 import { Sector } from '../types/Sectors'
-import { DARK_COLORS, LIGHT_COLORS } from '@constants/colors'
 
 const MapWebView = () => {
   const { isDarkMode } = useTheme()
@@ -80,7 +83,8 @@ const MapWebView = () => {
           pathname: '/(protected)/report',
           params: {
             lat: data.coords.lat.toString(),
-            lng: data.coords.lng.toString()
+            lng: data.coords.lng.toString(),
+            sectorId: data.coords.sectorId?.toString()
           }
         })
       }
@@ -272,7 +276,9 @@ const mapHtml = (
                 '<div class="sector-popup-title">${
                   sector.name
                 }</div>' +
-                '<button class="sector-popup-button" onclick="reportLocation(' + clickLat + ',' + clickLng + ')">Reportar avería</button>' +
+                '<button class="sector-popup-button" onclick="reportLocation(' + clickLat + ',' + clickLng + ', ' + ${
+                  sector.id
+                } + ')">Reportar avería</button>' +
                 '<button class="sector-popup-button" onclick="showSectorStats(${
                   sector.id
                 })">Estadísticas</button>' +
@@ -318,11 +324,11 @@ const mapHtml = (
           .openPopup();
       });
 
-      window.reportLocation = function(lat, lng) {
+      window.reportLocation = function(lat, lng, sectorId) {
         window.ReactNativeWebView.postMessage(
           JSON.stringify({
             type: "REPORT_CLICK",
-            coords: { lat: lat, lng: lng }
+            coords: { lat: lat, lng: lng, sectorId: sectorId }
           })
         );
       };

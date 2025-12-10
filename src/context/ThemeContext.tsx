@@ -6,6 +6,7 @@ import {
   useEffect,
   useState
 } from 'react'
+import { useColorScheme } from 'react-native'
 
 type Theme = 'light' | 'dark'
 
@@ -24,18 +25,39 @@ export const ThemeProvider = ({
 }: {
   children: ReactNode
 }) => {
-  const [theme, setTheme] = useState<Theme>('light')
+  const systemScheme = useColorScheme()
+  const [theme, setTheme] = useState<Theme>(
+    systemScheme === 'dark' ? 'dark' : 'light'
+  )
 
   // Load theme from storage on mount
   useEffect(() => {
     loadTheme()
   }, [])
 
+  // Listen for system theme changes if no user preference is saved
+  useEffect(() => {
+    checkSystemTheme()
+  }, [systemScheme])
+
+  const checkSystemTheme = async () => {
+    try {
+      const savedTheme = await AsyncStorage.getItem('theme')
+      if (!savedTheme) {
+        setTheme(systemScheme === 'dark' ? 'dark' : 'light')
+      }
+    } catch (error) {
+      console.error('Error checking system theme:', error)
+    }
+  }
+
   const loadTheme = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem('theme')
       if (savedTheme === 'dark' || savedTheme === 'light') {
         setTheme(savedTheme)
+      } else {
+        setTheme(systemScheme === 'dark' ? 'dark' : 'light')
       }
     } catch (error) {
       console.error('Error loading theme:', error)

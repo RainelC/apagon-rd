@@ -21,7 +21,7 @@ import {
   View
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { SectorUptimeHistory } from '../../src/types/Sectors'
+import { SectorUptimeHistory, SectorUptimeParams } from '../../src/types/Sectors'
 
 export default function SectorStats() {
   const { sectorId } = useLocalSearchParams<{
@@ -35,25 +35,39 @@ export default function SectorStats() {
     useState<SectorUptimeHistory | null>(null)
   const [loading, setLoading] = useState(true)
 
+const formatDateParam = (date: Date): string => {
+    const pad = (value: number): string => value.toString().padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+};
+
+const getCurrentMonthRange = (): SectorUptimeParams => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(now);
+    end.setHours(23, 59, 59, 999);
+
+    return {
+        start: formatDateParam(start),
+        end: formatDateParam(end)
+    };
+};
+
+
   const loadSectorStats = useCallback(async () => {
     if (!sectorId) return
 
     try {
       setLoading(true)
 
-      // Calculate date range for last 30 days
-      const end = new Date()
-      const start = new Date()
-      start.setDate(start.getDate() - 30)
-
-      const startStr = start.toISOString().split('.')[0]
-      const endStr = end.toISOString().split('.')[0]
+      const { start, end } = getCurrentMonthRange();
 
       const data = await MapService.getSectorUptime(
         parseInt(sectorId),
         {
-          start: startStr,
-          end: endStr
+          start,
+          end
         }
       )
 
@@ -115,15 +129,15 @@ export default function SectorStats() {
         ) : stats ? (
           <>
             {/* Sector Info Card */}
-            <View style={styles.sectorInfoCard}>
+            <View style={[styles.sectorInfoCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
               <View style={styles.sectorInfoLeft}>
-                <Text style={styles.sectorLabel}>
+                <Text style={[styles.sectorLabel, { color: colors.text }]}>
                   SECTOR
                 </Text>
-                <Text style={styles.sectorName}>
+                <Text style={[styles.sectorName, { color: colors.textSecondary }]}>
                   {stats.sector.name}
                 </Text>
-                <View style={styles.statusBadge}>
+                <View style={[styles.statusBadge, { backgroundColor: colors.border }]}>
                   <Ionicons
                     name={
                       stats.sector.status === 'POWER'
@@ -166,7 +180,7 @@ export default function SectorStats() {
 
             <View style={styles.statsGrid}>
               {/* Power time */}
-              <View style={styles.statCard}>
+              <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
                 <View style={styles.statCardContent}>
                   <View style={styles.statCardLeft}>
                     <Text style={styles.statCardLabel}>
@@ -184,7 +198,7 @@ export default function SectorStats() {
                   <View
                     style={[
                       styles.statCardIcon,
-                      { backgroundColor: '#E8F5E9' }
+                      { backgroundColor: colors.iconColorGreenBg }
                     ]}
                   >
                     <Ionicons
@@ -197,7 +211,7 @@ export default function SectorStats() {
               </View>
 
               {/* Power hours */}
-              <View style={styles.statCard}>
+              <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
                 <View style={styles.statCardContent}>
                   <View style={styles.statCardLeft}>
                     <Text style={styles.statCardLabel}>
@@ -215,7 +229,7 @@ export default function SectorStats() {
                   <View
                     style={[
                       styles.statCardIcon,
-                      { backgroundColor: '#E3F2FD' }
+                      { backgroundColor: colors.iconColorBlueBg }
                     ]}
                   >
                     <Ionicons
@@ -228,7 +242,7 @@ export default function SectorStats() {
               </View>
 
               {/* Downtime hours */}
-              <View style={styles.statCard}>
+              <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
                 <View style={styles.statCardContent}>
                   <View style={styles.statCardLeft}>
                     <Text style={styles.statCardLabel}>
@@ -246,7 +260,7 @@ export default function SectorStats() {
                   <View
                     style={[
                       styles.statCardIcon,
-                      { backgroundColor: '#FFEBEE' }
+                      { backgroundColor: colors.iconColorRedBg }
                     ]}
                   >
                     <Ionicons
@@ -259,7 +273,7 @@ export default function SectorStats() {
               </View>
 
               {/* Total hours */}
-              <View style={styles.statCard}>
+              <View style={[styles.statCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
                 <View style={styles.statCardContent}>
                   <View style={styles.statCardLeft}>
                     <Text style={styles.statCardLabel}>
@@ -277,7 +291,7 @@ export default function SectorStats() {
                   <View
                     style={[
                       styles.statCardIcon,
-                      { backgroundColor: '#F5F5F5' }
+                      { backgroundColor: colors.iconColorWhiteBg }
                     ]}
                   >
                     <Ionicons
@@ -291,8 +305,8 @@ export default function SectorStats() {
             </View>
 
             {/* Power percentage */}
-            <View style={styles.chartCard}>
-              <Text style={styles.chartTitle}>
+            <View style={[styles.chartCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+              <Text style={[styles.chartTitle, { color: colors.text }]}>
                 Proporción de energía
               </Text>
               <View style={styles.chartContent}>
@@ -334,14 +348,14 @@ export default function SectorStats() {
             </View>
 
             {/* Summary of the month */}
-            <View style={styles.summaryCard}>
+            <View style={[styles.summaryCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
               <View style={styles.summaryHeader}>
                 <MaterialCommunityIcons
                   name='calendar-month'
                   size={20}
                   color='#9C27B0'
                 />
-                <Text style={styles.summaryTitle}>
+                <Text style={[styles.summaryTitle, { color: colors.text }]}>
                   Resumen del mes
                 </Text>
               </View>
@@ -349,7 +363,7 @@ export default function SectorStats() {
                 <View
                   style={[
                     styles.summaryItem,
-                    { backgroundColor: '#FFEBEE' }
+                    { backgroundColor: colors.iconColorRedBg }
                   ]}
                 >
                   <View style={styles.summaryItemLeft}>
@@ -358,7 +372,7 @@ export default function SectorStats() {
                       size={18}
                       color='#FF3B30'
                     />
-                    <Text style={styles.summaryItemLabel}>
+                    <Text style={[styles.summaryItemLabel, { color: colors.textSecondary }]}>
                       Días sin energía
                     </Text>
                   </View>
@@ -419,7 +433,7 @@ export default function SectorStats() {
                 <View
                   style={[
                     styles.summaryItem,
-                    { backgroundColor: '#FFEBEE' }
+                    { backgroundColor: colors.iconColorRedBg }
                   ]}
                 >
                   <View style={styles.summaryItemLeft}>
@@ -428,7 +442,7 @@ export default function SectorStats() {
                       size={18}
                       color='#FF3B30'
                     />
-                    <Text style={styles.summaryItemLabel}>
+                    <Text style={[styles.summaryItemLabel, { color: colors.textSecondary }]}>
                       Promedio diario sin luz
                     </Text>
                   </View>
@@ -511,7 +525,6 @@ const styles = StyleSheet.create({
     minHeight: 300
   },
   sectorInfoCard: {
-    backgroundColor: '#EEF2FF',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -571,7 +584,6 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: '48%',
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
@@ -608,12 +620,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   chartCard: {
-    backgroundColor: '#fff',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -631,13 +641,13 @@ const styles = StyleSheet.create({
   },
   progressBarLarge: {
     height: 24,
-    backgroundColor: '#FFEBEE',
+    backgroundColor: '#de0727ff',
     borderRadius: 12,
     overflow: 'hidden'
   },
   progressFillLarge: {
     height: '100%',
-    backgroundColor: '#34C759',
+    backgroundColor: '#19a33bff',
     borderRadius: 12
   },
   chartLegend: {
@@ -661,12 +671,10 @@ const styles = StyleSheet.create({
     fontWeight: '500'
   },
   summaryCard: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -682,7 +690,6 @@ const styles = StyleSheet.create({
   summaryTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333'
   },
   summaryContent: {
     gap: 12
@@ -703,7 +710,6 @@ const styles = StyleSheet.create({
   summaryItemLabel: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#333'
   },
   summaryItemValue: {
     fontSize: 16,
