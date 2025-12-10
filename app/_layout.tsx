@@ -1,8 +1,12 @@
 import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
+import { AuthProvider } from '@context/AuthContext'
+import {
   ThemeProvider,
   useTheme
 } from '@context/ThemeContext'
-import { AuthProvider } from '@context/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import * as Linking from 'expo-linking'
 import * as NavigationBar from 'expo-navigation-bar'
@@ -34,6 +38,28 @@ function RootLayoutNav() {
   return <Redirect href={'/(protected)' as Href} />
 }
 
+function MainLayoutNav() {
+  const { isDarkMode } = useTheme()
+  const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
+
+  return (
+    <>
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+      <ThemedStatusBar />
+      <RootLayoutNav />
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          sceneStyle: {
+            backgroundColor: colors.background
+          }
+        }}
+        tabBar={() => null}
+      />
+    </>
+  )
+}
+
 export default function RootLayout() {
   useEffect(() => {
     if (Platform.OS === 'android')
@@ -43,12 +69,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <ThemedStatusBar />
-        <RootLayoutNav />
-        <Tabs
-          screenOptions={{ headerShown: false }}
-          tabBar={() => null}
-        />
+        <MainLayoutNav />
       </AuthProvider>
     </ThemeProvider>
   )

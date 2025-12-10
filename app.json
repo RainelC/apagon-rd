@@ -37,7 +37,12 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#ffffff",
+
+          "dark": {
+            "backgroundColor": "#202124",
+            "image": "./assets/images/splash-icon.png"
+          }
         }
       ],
       "expo-router",
@@ -48,10 +53,18 @@
           "photosPermission": "La aplicación necesita acceder a tus fotos para que puedas subir imágenes de los reportes."
         }
       ],
-       [
+      [
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Permitir a $(PRODUCT_NAME) usar tu ubicación."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
         }
       ]
     ]
