@@ -4,7 +4,7 @@ import { User } from './User'
 interface AddReport {
   latitude: string
   longitude: string
-  sectorId: 1
+  sectorId: string  
   description: string
   powerStatus: 'NO_POWER' | 'POWER'
   status: 'RECEIVED' | 'IN_PROGRESS' | 'RESOLVER'

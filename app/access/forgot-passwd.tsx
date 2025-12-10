@@ -1,20 +1,24 @@
+import { GoBackButton } from '@components/GoBackButton'
 import { Input } from '@components/Input'
+import {
+  DARK_COLORS,
+  LIGHT_COLORS
+} from '@constants/colors'
+import { useTheme } from '@context/ThemeContext'
 import { useForm } from '@hooks/useForm'
+import { AuthService } from '@services/authService'
+import { AxiosError } from 'axios'
 import { useState } from 'react'
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native'
-import { AuthService } from '@services/authService'
-import { LIGHT_COLORS, DARK_COLORS } from '@constants/colors'
-import { GoBackButton } from '@components/GoBackButton'
-import { AxiosError } from 'axios'
 
 const authService = new AuthService()
 
@@ -24,7 +28,7 @@ export default function LoginScreen() {
       username: ''
     })
 
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const { isDarkMode } = useTheme()
   const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
   const [isLoading, setIsLoading] = useState(false)
 
@@ -72,21 +76,24 @@ export default function LoginScreen() {
       behavior={
         Platform.OS === 'ios' ? 'padding' : 'height'
       }
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={[
+        styles.container,
+        { backgroundColor: colors.background }
+      ]}
     >
       <View style={styles.screen}>
         <View style={styles.header}>
           <GoBackButton />
-          <Text style={styles.title}>
+          <Text style={[styles.title, { color: colors.text }]}>
             Olvidé mi contraseña
           </Text>
         </View>
         <View style={styles.info}>
           <Image
             style={styles.image}
-            source={require('./../../assets/images/placeholder-recover.png')}
+            source={require('./../../assets/images/recover.png')}
           />
-          <Text style={styles.infoText}>
+          <Text style={[styles.infoText, { color: colors.text }]}>
             Por favor, introduce tu nombre de usuario para
             recibir al correo electrónico un enlace de
             verificación
@@ -137,7 +144,7 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   screen: {
     paddingHorizontal: 24,

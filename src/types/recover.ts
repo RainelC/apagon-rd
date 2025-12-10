@@ -4,4 +4,10 @@ interface recoverPasswdProps {
   token: string
 }
 
-export default recoverPasswdProps
+interface changePasswdProps {
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+}
+
+export type { recoverPasswdProps, changePasswdProps }

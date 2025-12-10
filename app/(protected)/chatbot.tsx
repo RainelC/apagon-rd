@@ -4,6 +4,7 @@ import {
 } from '@constants/colors'
 import { useTheme } from '@context/ThemeContext'
 import { Ionicons } from '@expo/vector-icons'
+import { useAuth } from '@hooks/useAuth'
 import { BotService } from '@services/botService'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useEffect, useRef, useState } from 'react'
@@ -22,12 +23,24 @@ import {
 import { Message } from '../../src/types/message'
 
 export default function ReluxChatbot() {
-  const [messages, setMessages] = useState<Message[]>([])
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'user',
+      content:
+        'Hola, solo saluda una vez y trata de dar las respuestas breves y concisas.'
+    }
+  ])
   const [inputText, setInputText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const scrollViewRef = useRef<ScrollView>(null)
   const { isDarkMode } = useTheme()
+  const { token } = useAuth()
   const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
+  const INITIAL_MESSAGE: Message = {
+    role: 'user',
+    content:
+      'Hola, solo saluda una vez y trata de dar las respuestas breves y concisas.'
+  }
 
   const scrollToBottom = () => {
     scrollViewRef.current?.scrollToEnd({ animated: true })
@@ -36,6 +49,12 @@ export default function ReluxChatbot() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    if (!token) {
+      setMessages([INITIAL_MESSAGE])
+    }
+  }, [token])
 
   const callBotAPI = async (userMessage: string) => {
     const response = await BotService.chat({
@@ -70,7 +89,13 @@ export default function ReluxChatbot() {
   }
 
   const handleClearChat = () => {
-    setMessages([])
+    setMessages([
+      {
+        role: 'user',
+        content:
+          'Hola, solo saluda una vez y trata de dar las respuestas breves y concisas.'
+      }
+    ])
   }
 
   return (
@@ -129,61 +154,63 @@ export default function ReluxChatbot() {
         contentContainerStyle={styles.messagesContent}
         onContentSizeChange={scrollToBottom}
       >
-        {messages.map((message, i) => (
-          <View
-            key={message.role + i}
-            style={[
-              styles.messageWrapper,
-              message.role === 'user'
-                ? styles.userMessageWrapper
-                : styles.botMessageWrapper
-            ]}
-          >
+        {messages.map((message, i) =>
+          i === 0 ? null : (
             <View
+              key={message.role + i}
               style={[
-                styles.messageAvatar,
+                styles.messageWrapper,
                 message.role === 'user'
-                  ? styles.userAvatar
-                  : styles.botAvatar
+                  ? styles.userMessageWrapper
+                  : styles.botMessageWrapper
               ]}
             >
-              <Ionicons
-                name={
-                  message.role === 'user'
-                    ? 'person'
-                    : 'chatbubble-ellipses'
-                }
-                size={18}
-                color='#FFF'
-              />
-            </View>
-            <View
-              style={[
-                styles.messageBubble,
-                message.role === 'user'
-                  ? styles.userBubble
-                  : [
-                      styles.botBubble,
-                      {
-                        backgroundColor:
-                          colors.cardBackground
-                      }
-                    ]
-              ]}
-            >
-              <Text
+              <View
                 style={[
-                  styles.messageText,
+                  styles.messageAvatar,
                   message.role === 'user'
-                    ? styles.userText
-                    : { color: colors.textSecondary }
+                    ? styles.userAvatar
+                    : styles.botAvatar
                 ]}
               >
-                {message.content}
-              </Text>
+                <Ionicons
+                  name={
+                    message.role === 'user'
+                      ? 'person'
+                      : 'chatbubble-ellipses'
+                  }
+                  size={18}
+                  color='#FFF'
+                />
+              </View>
+              <View
+                style={[
+                  styles.messageBubble,
+                  message.role === 'user'
+                    ? styles.userBubble
+                    : [
+                        styles.botBubble,
+                        {
+                          backgroundColor:
+                            colors.cardBackground
+                        }
+                      ]
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.messageText,
+                    message.role === 'user'
+                      ? styles.userText
+                      : { color: colors.textSecondary }
+                  ]}
+                >
+                  {message.content}
+                </Text>
+              </View>
             </View>
-          </View>
-        ))}
+          )
+        )}
 
         {isTyping && (
           <View

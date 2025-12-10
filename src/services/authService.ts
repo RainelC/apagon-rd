@@ -1,7 +1,7 @@
 import { AxiosError, AxiosResponse } from 'axios'
 import { axiosInstance } from '../api/apiClient'
 import type { CreateUser } from '../types/createUser'
-import type recoverPasswdProps from '../types/recover'
+import type { recoverPasswdProps, changePasswdProps } from '../types/recover'
 
 enum Endpoint {
   REGISTER = 'users/register',
@@ -80,6 +80,14 @@ class AuthService {
     } catch (error: unknown) {
       return error as AxiosError
     }
+  }
+
+  async changePassword(props: changePasswdProps) {
+    const { data } = await axiosInstance.post(
+      Endpoint.CHANGE_PASSWORD,
+      props
+    )
+    return data
   }
 
   async validateRecoverToken(token: string) {

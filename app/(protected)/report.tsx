@@ -6,7 +6,6 @@ import {
 import { useTheme } from '@context/ThemeContext'
 import { Ionicons } from '@expo/vector-icons'
 import { useForm } from '@hooks/useForm'
-import { ReportService } from '@services/reportService'
 import * as ImagePicker from 'expo-image-picker'
 import * as Location from 'expo-location'
 import {
@@ -30,17 +29,18 @@ export default function Report() {
   const { isDarkMode } = useTheme()
   const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
-  const { lat, lng } = useLocalSearchParams<{
+  const { lat, lng, sectorId } = useLocalSearchParams<{
     lat: string
     lng: string
+    sectorId: string
   }>()
 
   const [loading, setLoading] = useState(false)
-  const { form, setField, setFields,  resetForm } =
+  const { form, setField, setFields, resetForm } =
     useForm<AddReport>({
       latitude: lat || '',
       longitude: lng || '',
-      sectorId: 1,
+      sectorId: sectorId || '',
       description: '',
       status: 'RECEIVED',
       powerStatus: 'POWER',
@@ -50,6 +50,35 @@ export default function Report() {
   const setFieldsRef = useRef(setFields)
   setFieldsRef.current = setFields
 
+  // Helper to get current location
+  const getCurrentLocation = async () => {
+    try {
+      let { status } =
+        await Location.requestForegroundPermissionsAsync()
+      if (status !== 'granted') {
+        Alert.alert(
+          'Error',
+          'Permiso para acceder a la ubicación denegado'
+        )
+        return
+      }
+
+      let location = await Location.getCurrentPositionAsync(
+        {}
+      )
+      setFieldsRef.current({
+        latitude: location.coords.latitude.toFixed(5),
+        longitude: location.coords.longitude.toFixed(5),
+        sectorId: sectorId || ''
+      })
+    } catch {
+      Alert.alert(
+        'Error',
+        'No se pudo obtener la ubicación actual'
+      )
+    }
+  }
+
   // Handle location from params or get current location
   useFocusEffect(
     useCallback(() => {
@@ -58,38 +87,20 @@ export default function Report() {
           // If we have lat/lng from params, use them
           setFieldsRef.current({
             latitude: (+lat).toFixed(5),
-            longitude: (+lng).toFixed(5)
+            longitude: (+lng).toFixed(5),
+            sectorId: sectorId || ''
           })
         } else {
           // Otherwise, get current location
-          try {
-            let { status } =
-              await Location.requestForegroundPermissionsAsync()
-            if (status !== 'granted') {
-              Alert.alert(
-                'Error',
-                'Permiso para acceder a la ubicación denegado'
-              )
-              return
-            }
-
-            let location =
-              await Location.getCurrentPositionAsync({})
-            setFieldsRef.current({
-              latitude: location.coords.latitude.toFixed(5),
-              longitude:
-                location.coords.longitude.toFixed(5)
-            })
-          } catch  {
-            Alert.alert(
-              'Error',
-              'No se pudo obtener la ubicación actual'
-            )
-          }
+          getCurrentLocation()
         }
       }
 
       handleLocation()
+
+      return () => {
+        resetForm()
+      }
     }, [lat, lng])
   )
 
@@ -106,12 +117,14 @@ export default function Report() {
 
     try {
       setLoading(true)
-      await ReportService.createReport(form)
+      console.log(form)
+      // await ReportService.createReport(form)
       Alert.alert('Éxito', 'Reporte creado exitosamente', [
         {
           text: 'OK',
           onPress: () => {
             resetForm()
+            getCurrentLocation()
             router.back()
           }
         }

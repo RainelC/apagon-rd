@@ -38,6 +38,24 @@ class MapService {
     })
   }
 
+
+  static async getCurrentSector(
+    lat: number,
+    lon: number
+  ): Promise<Sector> {
+    const response = await axiosInstance.get<Sector>(
+      `${Endpoint.SECTORS_GEOJSON}/current`,
+      {
+        params: {
+          lat,
+          lon
+        }
+      }
+    )
+
+    return response.data
+  };
+
   static async getSectorUptime(
     sectorId: number,
     params: SectorUptimeParams

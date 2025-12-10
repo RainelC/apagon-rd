@@ -9,4 +9,11 @@ interface User {
   status: string
 }
 
-export type { User }
+interface updateUser {
+  username?: string
+  email?: string
+  firstname?: string
+  lastname?: string
+}
+
+export type { User, updateUser }

@@ -3,13 +3,15 @@ import {
   DARK_COLORS,
   LIGHT_COLORS
 } from '@constants/colors'
+import { useTheme } from '@context/ThemeContext'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAuth } from '@hooks/useAuth'
-import { useTheme } from '@context/ThemeContext'
-import { Tabs } from 'expo-router'
-import { useState } from 'react'
+import { userService } from '@services/userService'
+import { router, Tabs, useFocusEffect } from 'expo-router'
+import { useCallback, useState } from 'react'
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Switch,
@@ -17,31 +19,82 @@ import {
   TouchableOpacity,
   View
 } from 'react-native'
+import { User } from '../../src/types/User'
 
 export default function Profile() {
   const auth = useAuth()
   const { signOut } = auth
 
-  const [name, setName] = useState(
-    // user ? `${user.firstName} ${user.lastName}` : ''
-    ''
-  )
-  const [phone, setPhone] = useState('')
-  // const [email, setEmail] = useState(user?.email || '')
-  const [email, setEmail] = useState('')
+  const [user, setUser] = useState<User>()
+  const [loading, setLoading] = useState(true)
 
-  const { isDarkMode, toggleTheme} = useTheme()
+  const { isDarkMode, toggleTheme } = useTheme()
   const colors = isDarkMode ? DARK_COLORS : LIGHT_COLORS
 
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile()
+    }, [])
+  )
 
-  if (!auth)
+  const handleChange = (key: keyof User, value: string) => {
+    setUser((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        [key]: value
+      }
+    })
+  }
+
+  const loadProfile = async () => {
+    try {
+      const currentUser = await userService.getCurrentUser()
+      setUser(currentUser)
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo cargar el perfil')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSave = async () => {
+    try {
+      setLoading(true)
+      await userService.updateProfile({
+        username: user?.username,
+        email: user?.email,
+        firstname: user?.firstName,
+        lastname: user?.lastName
+      })
+      Alert.alert(
+        'Éxito',
+        'Perfil actualizado correctamente'
+      )
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        'Error al actualizar el perfil'
+      Alert.alert('Error', message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading || !user)
     return (
-      <ActivityIndicator
-        size='large'
-        color='#0000ff'
-      />
+      <View
+        style={[
+          styles.container,
+          { justifyContent: 'center', alignItems: 'center' }
+        ]}
+      >
+        <ActivityIndicator
+          size='large'
+          color={colors.primary}
+        />
+      </View>
     )
-
 
   return (
     <View
@@ -54,17 +107,19 @@ export default function Profile() {
         options={{
           headerRight: () => (
             <TouchableOpacity
-              onPress={() => {
-                /* handle save action */
-              }}
+              onPress={handleSave}
+              disabled={loading}
             >
               <Text
                 style={{
-                  color: '#007AFF',
-                  marginRight: 20
+                  color: loading
+                    ? colors.textSecondary
+                    : '#007AFF',
+                  marginRight: 20,
+                  fontWeight: '600'
                 }}
               >
-                Guardar
+                {loading ? 'Guardando...' : 'Guardar'}
               </Text>
             </TouchableOpacity>
           )
@@ -87,24 +142,39 @@ export default function Profile() {
           </Text>
           <View style={styles.formGroup}>
             <Input
-              label='Nombre'
-              value={name}
-              onChangeText={setName}
-              placeholder='Nombre Completo'
+              label='Usuario'
+              value={user.username}
+              onChangeText={(text) =>
+                handleChange('username', text)
+              }
+              placeholder='Nombre de usuario'
+              autoCapitalize='none'
             />
             <Input
-              label='Número de Teléfono'
-              value={phone}
-              onChangeText={setPhone}
-              placeholder='Teléfono'
-              keyboardType='phone-pad'
+              label='Nombre'
+              value={user.firstName}
+              onChangeText={(text) =>
+                handleChange('firstName', text)
+              }
+              placeholder='Nombre'
+            />
+            <Input
+              label='Apellido'
+              value={user.lastName}
+              onChangeText={(text) =>
+                handleChange('lastName', text)
+              }
+              placeholder='Apellido'
             />
             <Input
               label='Correo Electrónico'
-              value={email}
-              onChangeText={setEmail}
+              value={user.email}
+              onChangeText={(text) =>
+                handleChange('email', text)
+              }
               placeholder='Correo'
               keyboardType='email-address'
+              autoCapitalize='none'
             />
           </View>
         </View>
@@ -167,6 +237,9 @@ export default function Profile() {
               styles.configItem,
               { borderBottomColor: colors.border }
             ]}
+            onPress={() => {
+              router.push('/auth/recover')
+            }}
           >
             <Text
               style={[
