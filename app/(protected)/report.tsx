@@ -24,6 +24,7 @@ import {
   View
 } from 'react-native'
 import { AddReport } from '../../src/types/Report'
+import { ReportService } from '@services/reportService'
 
 export default function Report() {
   const { isDarkMode } = useTheme()
@@ -117,8 +118,7 @@ export default function Report() {
 
     try {
       setLoading(true)
-      console.log(form)
-      // await ReportService.createReport(form)
+      await ReportService.createReport(form)
       Alert.alert('Éxito', 'Reporte creado exitosamente', [
         {
           text: 'OK',
